@@ -70,16 +70,11 @@ spec:
         - name: IMAGE
           value: >-
             image-registry.openshift-image-registry.svc:5000/quarkuscoffeeshop-cicd/quarkuscoffeeshop-counter:$(params.IMAGE_TAG)
-        - name: TLSVERIFY
-          value: 'false'
       runAfter:
         - maven-run
       taskRef:
         kind: ClusterTask
         name: buildah
-      workspaces:
-        - name: source
-          workspace: shared-workspace
     - name: tag-test-image
       params:
         - name: SCRIPT
