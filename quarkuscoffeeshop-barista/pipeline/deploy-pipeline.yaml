@@ -71,10 +71,8 @@ spec:
             oc start-build barista --from-dir=target/quarkus-app/ --follow -n quarkuscoffeeshop-demo
             oc new-app barista --name=barista --allow-missing-images -n quarkuscoffeeshop-demo
             oc set env deployment/barista JAVA_OPTS_APPEND="-Dquarkus.profile=prod" -n quarkuscoffeeshop-demo
-            
             KAFKA_URL=$(oc get configmap coffeeshop-sub-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.KAFKA_BOOTSTRAP_URLS}')
             oc set env deployment/barista KAFKA_BOOTSTRAP_URLS=$KAFKA_URL -n quarkuscoffeeshop-demo
-            
       runAfter:
         - maven-run
       taskRef:
