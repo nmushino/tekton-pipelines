@@ -27,3 +27,5 @@ spec:
                 configMapKeyRef:
                   name: coffeeshop-sub-config
                   key: KAFKA_BOOTSTRAP_URLS
+            - name: JAVA_OPTIONS
+              value: "-Dquarkus.profile=prod"

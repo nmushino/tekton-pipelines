@@ -70,6 +70,9 @@ spec:
             oc new-build --binary --name=barista --image-stream=java:11 -n quarkuscoffeeshop-demo
             oc start-build barista --from-dir=target/quarkus-app/ --follow -n quarkuscoffeeshop-demo
             oc new-app barista --name=barista --allow-missing-images -n quarkuscoffeeshop-demo
+            oc set env deployment/barista JAVA_OPTS_APPEND="-Dquarkus.profile=prod" -n quarkuscoffeeshop-demo
+            oc apply -f resources/barista-development.yaml -n quarkuscoffeeshop-demo
+            
       runAfter:
         - maven-run
       taskRef:
