@@ -5,7 +5,6 @@ bases:
   - ../common-functions
   
 resources:
-  - resources/barista-development.yaml
   - resources/coffeeshop-sub-configmap.yaml
   - pvc/pvc.yml
   - pvc/maven-source-pvc.yml
