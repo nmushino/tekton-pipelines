@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: barista
+  namespace: quarkuscoffeeshop-demo
+  labels:
+    app: barista
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: barista
+  template:
+    metadata:
+      labels:
+        app: barista
+    spec:
+      containers:
+        - name: barista
+          image: image-registry.openshift-image-registry.svc:5000/quarkuscoffeeshop-demo/barista:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: KAFKA_BOOTSTRAP_URLS
+              valueFrom:
+                configMapKeyRef:
+                  name: coffeeshop-sub-config
+                  key: KAFKA_BOOTSTRAP_URLS

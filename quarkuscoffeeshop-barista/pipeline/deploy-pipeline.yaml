@@ -44,36 +44,36 @@ spec:
           workspace: maven-settings
         - name: source
           workspace: shared-workspace
-    - name: build-java-app-image
-      params:
-        - name: CONTEXT
-          value: /workspace/source
-        - name: DOCKERFILE
-          value: /workspace/source/src/main/docker/Dockerfile.jvm
-        - name: IMAGE
-          value: >-
-            image-registry.openshift-image-registry.svc:5000/quarkuscoffeeshop-demo/quarkuscoffeeshop-barista:$(params.IMAGE_TAG)
-      runAfter:
-        - maven-run
-      taskRef:
-        kind: ClusterTask
-        name: buildah
-      workspaces:
-        - name: source
-          workspace: shared-workspace
+#    - name: build-java-app-image
+#      params:
+#        - name: CONTEXT
+#          value: /workspace/source
+#        - name: DOCKERFILE
+#          value: /workspace/source/src/main/docker/Dockerfile.jvm
+#        - name: IMAGE
+#          value: >-
+#            image-registry.openshift-image-registry.svc:5000/quarkuscoffeeshop-demo/quarkuscoffeeshop-barista:$(params.IMAGE_TAG)
+#      runAfter:
+#        - maven-run
+#      taskRef:
+#        kind: ClusterTask
+#        name: buildah
+#      workspaces:
+#        - name: source
+#          workspace: shared-workspace
     - name: push-oc-apps
-      taskRef:
-        name: push-image-task
       params:
         - name: SCRIPT
           value: |
-            oc delete all -l app=barista -n quarkuscoffeeshop-demo
-            oc new-build --binary --name=barista -n quarkuscoffeeshop-demo
-            oc start-build barista --from-file=target/quarkuscoffeeshop-barista-5.1.0.jar --follow -n quarkuscoffeeshop-demo
-            #oc apply -f openshift/coffeeshop-sub-configmap.yaml
-            #oc apply -f openshift/barista-development.yaml -n quarkuscoffeeshop-demo
+            oc delete all -l app=barista -n quarkuscoffeeshop-demo || true
+            oc delete bc/barista -n quarkuscoffeeshop-demo || true
+            oc new-build --binary --name=barista --image-stream=java:11 -n quarkuscoffeeshop-demo
+            oc start-build barista --from-dir=target/quarkus-app/ --follow -n quarkuscoffeeshop-demo
+            oc new-app barista --name=barista --allow-missing-images -n quarkuscoffeeshop-demo
       runAfter:
-        - build-java-app-image
+        - maven-run
+      taskRef:
+        name: push-app-task
       workspaces:
         - name: source
           workspace: shared-workspace
