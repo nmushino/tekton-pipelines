@@ -76,10 +76,6 @@ spec:
 
             KAFKA_URL=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.KAFKA_BOOTSTRAP_URLS}')
             oc set env deployment/counter KAFKA_BOOTSTRAP_URLS=$KAFKA_URL -n quarkuscoffeeshop-demo
-            QUARKUS_LOG_LEVEL=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.QUARKUS_LOG_LEVEL}')
-            oc set env deployment/counter QUARKUS_LOG_LEVEL=$QUARKUS_LOG_LEVEL -n quarkuscoffeeshop-demo
-            QUARKUSCOFFEESHOP_LOG_LEVEL=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.QUARKUSCOFFEESHOP_LOG_LEVEL}')
-            oc set env deployment/counter QUARKUSCOFFEESHOP_LOG_LEVEL=$QUARKUSCOFFEESHOP_LOG_LEVEL -n quarkuscoffeeshop-demo
 
             STREAM_URL=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.STREAM_URL}')
             oc set env deployment/counter STREAM_URL=$STREAM_URL -n quarkuscoffeeshop-demo
@@ -89,8 +85,6 @@ spec:
             oc set env deployment/counter CORS_ORIGINS:=$CORS_ORIGINS: -n quarkuscoffeeshop-demo
             STORE_ID:=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.STORE_ID:}')
             oc set env deployment/counter STORE_ID:=$STORE_ID: -n quarkuscoffeeshop-demo
-            PGSQL_URL:=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.PGSQL_URL:}')
-            oc set env deployment/counter CORS_ORIGPGSQL_URLINS:=$PGSQL_URL: -n quarkuscoffeeshop-demo
       runAfter:
         - maven-run
       taskRef:

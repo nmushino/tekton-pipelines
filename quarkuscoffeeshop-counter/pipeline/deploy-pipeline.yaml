@@ -67,35 +67,22 @@ spec:
           value: |
             oc delete all -l app=counter -n quarkuscoffeeshop-demo || true
             oc delete bc/counter -n quarkuscoffeeshop-demo || true
-            oc new-build --binary --name=counter --image-stream=java:11 -n quarkuscoffeeshop-demo
+            oc new-build --binary --name=counter --image-stream=java:17 -n quarkuscoffeeshop-demo
             oc start-build counter --from-dir=target/quarkus-app/ --follow -n quarkuscoffeeshop-demo
             oc new-app counter --name=counter --allow-missing-images -n quarkuscoffeeshop-demo
             oc set env deployment/counter JAVA_OPTS_APPEND="-Dquarkus.profile=prod" -n quarkuscoffeeshop-demo
 
-            CORS_ORIGINS=$(oc get route quarkuscoffeeshop-web -o jsonpath='{.spec.host}' -n quarkuscoffeeshop-demo)
-            LOYALTY_STREAM_URL=$(oc get route quarkuscoffeeshop-web -o jsonpath='{.spec.host}' -n quarkuscoffeeshop-demo)/dashboard/loyaltystream
-            STREAM_URL=$(oc get route quarkuscoffeeshop-web -o jsonpath='{.spec.host}' -n quarkuscoffeeshop-demo)/dashboard/stream
-            oc patch configmap coffeeshop-config -n quarkuscoffeeshop-demo -p "{\"data\":{\"CORS_ORIGINS\":\"http://$CORS_ORIGINS\"}}"
-            oc patch configmap coffeeshop-config -n quarkuscoffeeshop-demo -p "{\"data\":{\"LOYALTY_STREAM_URL\":\"http://$LOYALTY_STREAM_URL\"}}"
-            oc patch configmap coffeeshop-config -n quarkuscoffeeshop-demo -p "{\"data\":{\"STREAM_URL\":\"http://$STREAM_URL\"}}"
-
             KAFKA_URL=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.KAFKA_BOOTSTRAP_URLS}')
             oc set env deployment/counter KAFKA_BOOTSTRAP_URLS=$KAFKA_URL -n quarkuscoffeeshop-demo
-            QUARKUS_LOG_LEVEL=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.QUARKUS_LOG_LEVEL}')
-            oc set env deployment/counter QUARKUS_LOG_LEVEL=$QUARKUS_LOG_LEVEL -n quarkuscoffeeshop-demo
-            QUARKUSCOFFEESHOP_LOG_LEVEL=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.QUARKUSCOFFEESHOP_LOG_LEVEL}')
-            oc set env deployment/counter QUARKUSCOFFEESHOP_LOG_LEVEL=$QUARKUSCOFFEESHOP_LOG_LEVEL -n quarkuscoffeeshop-demo
+            QUARKUS_LOG_LEVEL=$(oc get configmap coffeeshop-sub-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.QUARKUS_LOG_LEVEL}')
+            oc set env deployment/barista QUARKUS_LOG_LEVEL=$QUARKUS_LOG_LEVEL -n quarkuscoffeeshop-demo
 
-            STREAM_URL=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.STREAM_URL}')
-            oc set env deployment/counter STREAM_URL=$STREAM_URL -n quarkuscoffeeshop-demo
-            LOYALTY_STREAM_URL=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.LOYALTY_STREAM_URL}')
-            oc set env deployment/counter LOYALTY_STREAM_URL=$LOYALTY_STREAM_URL -n quarkuscoffeeshop-demo
-            CORS_ORIGINS:=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.CORS_ORIGINS:}')
-            oc set env deployment/counter CORS_ORIGINS:=$CORS_ORIGINS: -n quarkuscoffeeshop-demo
-            STORE_ID:=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.STORE_ID:}')
-            oc set env deployment/counter STORE_ID:=$STORE_ID: -n quarkuscoffeeshop-demo
-            PGSQL_URL:=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.PGSQL_URL:}')
-            oc set env deployment/counter CORS_ORIGPGSQL_URLINS:=$PGSQL_URL: -n quarkuscoffeeshop-demo
+            PGSQL_URL=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.PGSQL_URL}')
+            oc set env deployment/counter PGSQL_URL=$PGSQL_URL -n quarkuscoffeeshop-demo
+            PGSQL_USER=$(oc get secret coffeeshopdb-pguser-coffeeshopadmin -n quarkuscoffeeshop-demo -o=jsonpath='{.data.user}' | base64 --decode)
+            oc set env deployment/counter PGSQL_USER=$PGSQL_USER -n quarkuscoffeeshop-demo
+            PGSQL_PASS=$(oc get secret coffeeshopdb-pguser-coffeeshopadmin -n quarkuscoffeeshop-demo -o=jsonpath='{.data.password}' | base64 --decode)
+            oc set env deployment/counter PGSQL_PASS=$PGSQL_PASS -n quarkuscoffeeshop-demo
       runAfter:
         - maven-run
       taskRef:
