@@ -6,5 +6,4 @@ bases:
   
 resources:
   - pvc/pvc.yml
-  - pvc/maven-source-pvc.yml
   - pipeline/deploy-pipeline.yaml

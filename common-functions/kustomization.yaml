@@ -2,3 +2,4 @@ resources:
 - tasks/git-clone.yaml
 - tasks/maven.yaml
 - tasks/push-app.yaml
+- pvc/maven-pvc.yaml

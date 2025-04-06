@@ -7,5 +7,4 @@ bases:
 resources:
   - resources/coffeeshop-configmap.yaml
   - pvc/pvc.yml
-  - pvc/maven-source-pvc.yml
   - pipeline/deploy-pipeline.yaml
