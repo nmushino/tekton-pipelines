@@ -34,6 +34,8 @@ spec:
           value:
             - clean
             - package
+        - name: MAVEN_IMAGE
+          value: maven:3.8.5-openjdk-17
       runAfter:
         - fetch-repository
       taskRef:
@@ -67,7 +69,7 @@ spec:
           value: |
             oc delete all -l app=counter -n quarkuscoffeeshop-demo || true
             oc delete bc/counter -n quarkuscoffeeshop-demo || true
-            oc new-build --binary --name=counter --image-stream=java:17 -n quarkuscoffeeshop-demo
+            oc new-build --binary --name=counter --image-stream=java:openjdk-17-ubi8 -n quarkuscoffeeshop-demo
             oc start-build counter --from-dir=target/quarkus-app/ --follow -n quarkuscoffeeshop-demo
             oc new-app counter --name=counter --allow-missing-images -n quarkuscoffeeshop-demo
             oc set env deployment/counter JAVA_OPTS_APPEND="-Dquarkus.profile=prod" -n quarkuscoffeeshop-demo
@@ -75,7 +77,7 @@ spec:
             KAFKA_URL=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.KAFKA_BOOTSTRAP_URLS}')
             oc set env deployment/counter KAFKA_BOOTSTRAP_URLS=$KAFKA_URL -n quarkuscoffeeshop-demo
             QUARKUS_LOG_LEVEL=$(oc get configmap coffeeshop-sub-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.QUARKUS_LOG_LEVEL}')
-            oc set env deployment/barista QUARKUS_LOG_LEVEL=$QUARKUS_LOG_LEVEL -n quarkuscoffeeshop-demo
+            oc set env deployment/counter QUARKUS_LOG_LEVEL=$QUARKUS_LOG_LEVEL -n quarkuscoffeeshop-demo
 
             PGSQL_URL=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.PGSQL_URL}')
             oc set env deployment/counter PGSQL_URL=$PGSQL_URL -n quarkuscoffeeshop-demo

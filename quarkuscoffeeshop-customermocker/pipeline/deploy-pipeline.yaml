@@ -1,4 +1,4 @@
-apiVersion: tekton.dev/v1alpha1
+apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
   name: build-and-push-quarkuscoffeeshop-customermocker
@@ -11,35 +11,11 @@ spec:
       description: Image Tag Value
       name: IMAGE_TAG
       type: string
-    - default: quay.io/quarkuscoffeeshop/quarkuscoffeeshop-customermocker
-      name: quay-io-repository
-      type: string
-    - default: latest
-      name: quay-io-image-tag-name
-      type: string
-    - default: webhook-secret
-      description: Webhook secret name
-      name: webhook-secret
-      type: string
-    - default: >-
-        --patch={"spec":{"template":{"spec":{"containers":[{"name":"quarkuscoffeeshop-customermocker","image":"image-registry.openshift-image-registry.svc:5000/quarkuscoffeeshop-cicd/quarkuscoffeeshop-customermocker:CHANGEME_TO_TAG"}]}}}}
-      description: CHANGEME_TO_TAG at the end of the string above
-      name: PATCH_IMAGE
-      type: string
-    - default: quarkuscoffeeshop-demo
-      description: Target Project
-      name: target_project
-      type: string
-  resources:
-    - name: app-git
-      type: git
-    - name: image
-      type: image
   tasks:
     - name: fetch-repository
       params:
         - name: url
-          value: 'https://github.com/quarkuscoffeeshop/quarkuscoffeeshop-customermocker'
+          value: 'https://github.com/nmushino/quarkuscoffeeshop-customermocker'
         - name: subdirectory
           value: ''
         - name: deleteExisting
@@ -56,9 +32,10 @@ spec:
           value: .
         - name: GOALS
           value:
-            - '-DskipTests'
             - clean
             - package
+        - name: MAVEN_IMAGE
+          value: maven:3.8.5-openjdk-11
       runAfter:
         - fetch-repository
       taskRef:
@@ -69,66 +46,43 @@ spec:
           workspace: maven-settings
         - name: source
           workspace: shared-workspace
-    - name: build-java-app-image
+#    - name: build-java-app-image
+#      params:
+#        - name: CONTEXT
+#          value: /workspace/source
+#        - name: DOCKERFILE
+#          value: /workspace/source/src/main/docker/Dockerfile.jvm
+#        - name: IMAGE
+#          value: >-
+#            image-registry.openshift-image-registry.svc:5000/quarkuscoffeeshop-demo/quarkuscoffeeshop-counter:$(params.IMAGE_TAG)
+#      runAfter:
+#        - maven-run
+#      taskRef:
+#        kind: ClusterTask
+#        name: buildah
+#      workspaces:
+#        - name: source
+#          workspace: shared-workspace
+    - name: push-oc-apps
       params:
-        - name: CONTEXT
-          value: .
-        - name: DOCKERFILE
-          value: src/main/docker/Dockerfile.jvm
-        - name: IMAGE
-          value: >-
-            image-registry.openshift-image-registry.svc:5000/quarkuscoffeeshop-cicd/quarkuscoffeeshop-customermocker:$(params.IMAGE_TAG)
-        - name: TLSVERIFY
-          value: 'false'
+        - name: SCRIPT
+          value: |
+            oc delete all -l app=customermocker -n quarkuscoffeeshop-demo || true
+            oc delete bc/customermocker -n quarkuscoffeeshop-demo || true
+            oc new-build --binary --name=customermocker --image-stream=java:openjdk-11-ubi8 -n quarkuscoffeeshop-demo
+            oc start-build customermocker --from-dir=target/quarkus-app/ --follow -n quarkuscoffeeshop-demo
+            oc new-app customermocker --name=customermocker --allow-missing-images -n quarkuscoffeeshop-demo
+            oc set env deployment/customermocker JAVA_OPTS_APPEND="-Dquarkus.profile=prod" -n quarkuscoffeeshop-demo
+
+            REST_URL=$(oc get configmap coffeeshop-sub-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.REST_URL}')
+            oc set env deployment/customermocker REST_URL=$REST_URL -n quarkuscoffeeshop-demo
       runAfter:
         - maven-run
       taskRef:
-        kind: ClusterTask
-        name: buildah
+        name: push-app-task
       workspaces:
         - name: source
           workspace: shared-workspace
-    - name: tag-test-image
-      params:
-        - name: ARGS
-          value:
-            - tag
-            - 'quarkuscoffeeshop-customermocker:$(params.IMAGE_TAG)'
-            - 'quarkuscoffeeshop-customermocker:latest'
-      runAfter:
-        - build-java-app-image
-      taskRef:
-        kind: ClusterTask
-        name: openshift-client
-    - name: push-to-test-env
-      params:
-        - name: ARGS
-          value:
-            - patch
-            - deployment/quarkuscoffeeshop-customermocker
-            - $(params.PATCH_IMAGE)
-            - '-n'
-            - $(params.target_project)
-      runAfter:
-        - tag-test-image
-      taskRef:
-        kind: ClusterTask
-        name: openshift-client
-    - name: push-quarkuscoffeeshop-customermocker-image-to-quay
-      params:
-        - name: quay-io-repository
-          value: $(params.quay-io-repository)
-        - name: quay-io-image-tag-name
-          value: $(params.quay-io-image-tag-name)
-      resources:
-        inputs:
-          - name: image
-            resource: image
-      runAfter:
-        - push-to-test-env
-      taskRef:
-        kind: Task
-        name: push-quarkuscoffeeshop-customermocker-image-to-quay
   workspaces:
-    - name: shared-workspace
-    - name: maven-settings
+  - name: shared-workspace
+  - name: maven-settings

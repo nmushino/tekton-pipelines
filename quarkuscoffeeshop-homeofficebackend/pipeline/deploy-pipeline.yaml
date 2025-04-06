@@ -15,7 +15,7 @@ spec:
     - name: fetch-repository
       params:
         - name: url
-          value: 'https://github.com/nmushino/quarkuscoffeeshop-homeoffice-backend'
+          value: 'https://github.com/nmushino/homeoffice-backend'
         - name: subdirectory
           value: ''
         - name: deleteExisting
@@ -34,6 +34,8 @@ spec:
           value:
             - clean
             - package
+        - name: MAVEN_IMAGE
+          value: maven:3.8.5-openjdk-17
       runAfter:
         - fetch-repository
       taskRef:
@@ -67,21 +69,29 @@ spec:
           value: |
             oc delete all -l app=homeoffice-backend -n quarkuscoffeeshop-demo || true
             oc delete bc/homeoffice-backend -n quarkuscoffeeshop-demo || true
-            oc new-build --binary --name=homeoffice-backend --image-stream=java:17 -n quarkuscoffeeshop-demo
+            oc new-build --binary --name=homeoffice-backend --image-stream=java:openjdk-17-ubi8 -n quarkuscoffeeshop-demo
             oc start-build homeoffice-backend --from-dir=target/quarkus-app/ --follow -n quarkuscoffeeshop-demo
             oc new-app homeoffice-backend --name=homeoffice-backend --allow-missing-images -n quarkuscoffeeshop-demo
             oc set env deployment/homeoffice-backend JAVA_OPTS_APPEND="-Dquarkus.profile=prod" -n quarkuscoffeeshop-demo
 
-            PGSQL_URL=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.PGSQL_URL}')
-            oc set env deployment/homeoffice-backend PGSQL_URL=$PGSQL_URL -n quarkuscoffeeshop-demo
-            PGSQL_USER=$(oc get secret coffeeshopdb-pguser-coffeeshopadmin -n quarkuscoffeeshop-demo -o=jsonpath='{.data.user}' | base64 --decode)
-            oc set env deployment/homeoffice-backend PGSQL_USER=$PGSQL_USER -n quarkuscoffeeshop-demo
-            PGSQL_PASS=$(oc get secret coffeeshopdb-pguser-coffeeshopadmin -n quarkuscoffeeshop-demo -o=jsonpath='{.data.password}' | base64 --decode)
-            oc set env deployment/homeoffice-backend PGSQL_PASS=$PGSQL_PASS -n quarkuscoffeeshop-demo
+            POSTGRESQL_JDBC_URL=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.PGSQL_URL}')
+            oc set env deployment/homeoffice-backend POSTGRESQL_JDBC_URL=$POSTGRESQL_JDBC_URL -n quarkuscoffeeshop-demo
+            POSTGRESQL_USER=$(oc get secret coffeeshopdb-pguser-coffeeshopadmin -n quarkuscoffeeshop-demo -o=jsonpath='{.data.user}' | base64 --decode)
+            oc set env deployment/homeoffice-backend POSTGRESQL_USER=$POSTGRESQL_USER -n quarkuscoffeeshop-demo
+            POSTGRESQL_PASSWORD=$(oc get secret coffeeshopdb-pguser-coffeeshopadmin -n quarkuscoffeeshop-demo -o=jsonpath='{.data.password}' | base64 --decode)
+            oc set env deployment/homeoffice-backend POSTGRESQL_PASSWORD=$POSTGRESQL_PASSWORD -n quarkuscoffeeshop-demo
+
+            KAFKA_URL=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.KAFKA_BOOTSTRAP_URLS}')
+            oc set env deployment/homeoffice-backend  KAFKA_BOOTSTRAP_URLS=$KAFKA_URL -n quarkuscoffeeshop-demo
+            QUARKUS_LOG_LEVEL=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.QUARKUS_LOG_LEVEL}')
+            oc set env deployment/homeoffice-backend  QUARKUS_LOG_LEVEL=$QUARKUS_LOG_LEVEL -n quarkuscoffeeshop-demo
+            QUARKUSCOFFEESHOP_LOG_LEVEL=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.QUARKUSCOFFEESHOP_LOG_LEVEL}')
+            oc set env deployment/homeoffice-backend  QUARKUSCOFFEESHOP_LOG_LEVEL=$QUARKUSCOFFEESHOP_LOG_LEVEL -n quarkuscoffeeshop-demo
+            STORE_LOCATIONS=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.STORE_LOCATIONS}')
+            oc set env deployment/homeoffice-backend  STORE_LOCATIONS=$STORE_LOCATIONS -n quarkuscoffeeshop-demo
 
             oc expose deployment homeoffice-backend --port=8080 --name=homeoffice-backend -n quarkuscoffeeshop-demo
             oc expose svc homeoffice-backend --name=homeoffice-backend -n quarkuscoffeeshop-demo
-
       runAfter:
         - maven-run
       taskRef:

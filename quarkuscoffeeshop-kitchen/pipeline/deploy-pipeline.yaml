@@ -67,7 +67,7 @@ spec:
           value: |
             oc delete all -l app=kitchen -n quarkuscoffeeshop-demo || true
             oc delete bc/kitchen -n quarkuscoffeeshop-demo || true
-            oc new-build --binary --name=kitchen --image-stream=java:11 -n quarkuscoffeeshop-demo
+            oc new-build --binary --name=kitchen --image-stream=java:openjdk-11-ubi8 -n quarkuscoffeeshop-demo
             oc start-build kitchen --from-dir=target/quarkus-app/ --follow -n quarkuscoffeeshop-demo
             oc new-app kitchen --name=kitchen --allow-missing-images -n quarkuscoffeeshop-demo
             oc set env deployment/kitchen JAVA_OPTS_APPEND="-Dquarkus.profile=prod" -n quarkuscoffeeshop-demo
