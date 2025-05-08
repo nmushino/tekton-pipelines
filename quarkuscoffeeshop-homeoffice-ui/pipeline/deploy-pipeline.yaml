@@ -71,6 +71,31 @@ spec:
             oc start-build homeoffice-ui --from-dir=. --follow -n quarkuscoffeeshop-demo
             oc new-app homeoffice-ui --name=homeoffice-ui --allow-missing-images -n quarkuscoffeeshop-demo
             oc expose svc homeoffice-ui --name=homeoffice-ui -n quarkuscoffeeshop-demo
+
+            # 🔽 securityContext の patch を追加（Deployment に対して）
+            oc patch deployment homeoffice-ui -n quarkuscoffeeshop-demo --type=json -p='[
+              {
+                "op": "add",
+                "path": "/spec/template/spec/containers/0/securityContext",
+                "value": {
+                  "allowPrivilegeEscalation": false,
+                  "capabilities": {
+                    "drop": ["ALL"]
+                  },
+                  "runAsNonRoot": true
+                }
+              },
+              {
+                "op": "add",
+                "path": "/spec/template/spec/securityContext",
+                "value": {
+                  "seccompProfile": {
+                    "type": "RuntimeDefault"
+                  }
+                }
+              }
+            ]'
+
       runAfter:
         - fetch-repository
       taskRef:
@@ -81,3 +106,15 @@ spec:
   workspaces:
   - name: shared-workspace
   - name: maven-settings
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: homeoffice-ui
+spec:
+  selector:
+    app: homeoffice-ui
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080  # アプリが使用しているポートに合わせて調整
