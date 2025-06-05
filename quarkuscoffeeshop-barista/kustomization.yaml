@@ -5,6 +5,6 @@ bases:
   - ../common-functions
   
 resources:
-  - resources/coffeeshop-sub-configmap.yaml
+  - resources/coffeeshop-configmap.yaml
   - pvc/pvc.yml
   - pipeline/deploy-pipeline.yaml

@@ -71,8 +71,6 @@ spec:
             oc start-build homeoffice-ui --from-dir=. --follow -n quarkuscoffeeshop-demo
             oc new-app homeoffice-ui --name=homeoffice-ui --allow-missing-images -n quarkuscoffeeshop-demo
             oc expose svc homeoffice-ui --name=homeoffice-ui -n quarkuscoffeeshop-demo
-
-            # 🔽 securityContext の patch を追加（Deployment に対して）
             oc patch deployment homeoffice-ui -n quarkuscoffeeshop-demo --type=json -p='[
               {
                 "op": "add",
