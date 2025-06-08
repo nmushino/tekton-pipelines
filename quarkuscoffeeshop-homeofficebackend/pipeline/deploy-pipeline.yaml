@@ -81,6 +81,15 @@ spec:
             POSTGRESQL_PASSWORD=$(oc get secret coffeeshopdb-pguser-coffeeshopadmin -n quarkuscoffeeshop-demo -o=jsonpath='{.data.password}' | base64 --decode)
             oc set env deployment/homeoffice-backend POSTGRESQL_PASSWORD=$POSTGRESQL_PASSWORD -n quarkuscoffeeshop-demo
 
+            CONFIG_CORS_ORIGINS=$(oc get route quarkuscoffeeshop-web -o jsonpath='{.spec.host}' -n quarkuscoffeeshop-demo)
+            CONFIG_LOYALTY_STREAM_URL=$(oc get route quarkuscoffeeshop-web -o jsonpath='{.spec.host}' -n quarkuscoffeeshop-demo)/dashboard/loyaltystream)
+            CONFIG_STREAM_URL=$(oc get route quarkuscoffeeshop-web -o jsonpath='{.spec.host}' -n quarkuscoffeeshop-demo)/dashboard/stream)
+            CONFIG_GRAHQL_URL=$("http://$(oc get route homeoffice-backend -o jsonpath='{.spec.host}')")
+            oc patch configmap coffeeshop-config -n quarkuscoffeeshop-demo -p "{\"data\":{\"CORS_ORIGINS\":\"http://$CONFIG_CORS_ORIGINS\"}}"
+            oc patch configmap coffeeshop-config -n quarkuscoffeeshop-demo -p "{\"data\":{\"LOYALTY_STREAM_URL\":\"http://$CONFIG_LOYALTY_STREAM_URL\"}}"
+            oc patch configmap coffeeshop-config -n quarkuscoffeeshop-demo -p "{\"data\":{\"STREAM_URL\":\"http://$CONFIG_STREAM_URL\"}}"
+            oc patch configmap coffeeshop-config -n quarkuscoffeeshop-demo -p "{\"data\":{\"GRAHQL_URL\":\"http://$CONFIG_GRAHQL_URL\"}}"
+
             KAFKA_URL=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.KAFKA_BOOTSTRAP_URLS}')
             oc set env deployment/homeoffice-backend  KAFKA_BOOTSTRAP_URLS=$KAFKA_URL -n quarkuscoffeeshop-demo
             QUARKUS_LOG_LEVEL=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.QUARKUS_LOG_LEVEL}')
@@ -89,7 +98,7 @@ spec:
             oc set env deployment/homeoffice-backend  QUARKUSCOFFEESHOP_LOG_LEVEL=$QUARKUSCOFFEESHOP_LOG_LEVEL -n quarkuscoffeeshop-demo
             STORE_LOCATIONS=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.STORE_ID}')
             oc set env deployment/homeoffice-backend  STORE_LOCATIONS=$STORE_LOCATIONS -n quarkuscoffeeshop-demo
-            GRAHQL_URL=$("http://$(oc get route homeoffice-backend -o jsonpath='{.spec.host}')")
+            GRAHQL_URL=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.GRAHQL_URL}')
             oc set env deployment/homeoffice-backend GRAHQL_URL=$GRAHQL_URL -n quarkuscoffeeshop-demo
 
             oc expose deployment homeoffice-backend --port=8080 --name=homeoffice-backend -n quarkuscoffeeshop-demo
