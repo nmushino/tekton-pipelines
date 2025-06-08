@@ -67,6 +67,13 @@ spec:
           value: |
             oc delete all -l app=homeoffice-ui -n quarkuscoffeeshop-demo || true
             oc delete bc/homeoffice-ui -n quarkuscoffeeshop-demo || true
+
+            CONFIG_REST_URL=$(oc get route homeoffice-ui -o jsonpath='{.spec.host}' -n quarkuscoffeeshop-demo)/graphql
+            CONFIG_ALLOWED_ORIGINS=$(oc get route homeoffice -o jsonpath='{.spec.host}' -n quarkuscoffeeshop-demo)
+
+            sed -i.bak -E 's|^REACT_APP_GRAPHQL_ENDPOINT=.*$|REACT_APP_GRAPHQL_ENDPOINT=http://new-url/graphql|' .env
+            sed -i.bak -E 's|^ALLOWED_ORIGINS=.*$|ALLOWED_ORIGINS=http://new-url/graphql|' .env
+
             oc new-build --binary --name=homeoffice-ui --image-stream=openshift/nodejs -n quarkuscoffeeshop-demo
             oc start-build homeoffice-ui --from-dir=. --follow -n quarkuscoffeeshop-demo
             oc new-app homeoffice-ui --name=homeoffice-ui --allow-missing-images -n quarkuscoffeeshop-demo

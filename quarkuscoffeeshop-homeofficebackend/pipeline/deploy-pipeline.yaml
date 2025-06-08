@@ -87,8 +87,10 @@ spec:
             oc set env deployment/homeoffice-backend  QUARKUS_LOG_LEVEL=$QUARKUS_LOG_LEVEL -n quarkuscoffeeshop-demo
             QUARKUSCOFFEESHOP_LOG_LEVEL=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.QUARKUSCOFFEESHOP_LOG_LEVEL}')
             oc set env deployment/homeoffice-backend  QUARKUSCOFFEESHOP_LOG_LEVEL=$QUARKUSCOFFEESHOP_LOG_LEVEL -n quarkuscoffeeshop-demo
-            STORE_LOCATIONS=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.STORE_LOCATIONS}')
+            STORE_LOCATIONS=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.STORE_ID}')
             oc set env deployment/homeoffice-backend  STORE_LOCATIONS=$STORE_LOCATIONS -n quarkuscoffeeshop-demo
+            GRAHQL_URL=$("http://$(oc get route homeoffice-backend -o jsonpath='{.spec.host}')")
+            oc set env deployment/homeoffice-backend GRAHQL_URL=$GRAHQL_URL -n quarkuscoffeeshop-demo
 
             oc expose deployment homeoffice-backend --port=8080 --name=homeoffice-backend -n quarkuscoffeeshop-demo
             oc expose svc homeoffice-backend --name=homeoffice-backend -n quarkuscoffeeshop-demo

@@ -77,7 +77,7 @@ spec:
             CONFIG_CORS_ORIGINS=$(oc get route homeoffice-ui -o jsonpath='{.spec.host}' -n quarkuscoffeeshop-demo)
             CONFIG_LOYALTY_STREAM_URL=$(oc get route homeoffice-ui -o jsonpath='{.spec.host}' -n quarkuscoffeeshop-demo)/dashboard/loyaltystream
             CONFIG_STREAM_URL=$(oc get route homeoffice-ui -o jsonpath='{.spec.host}' -n quarkuscoffeeshop-demo)/dashboard/stream
-            CONFIG_REST_URL=$(oc get route homeoffice-ui -o jsonpath='{.spec.host}' -n quarkuscoffeeshop-demo)/order
+            CONFIG_REST_URL=$(oc get route homeoffice-ui -o jsonpath='{.spec.host}' -n quarkuscoffeeshop-demo)/graphql
             oc patch configmap coffeeshop-config -n quarkuscoffeeshop-demo -p "{\"data\":{\"CORS_ORIGINS\":\"http://$CONFIG_CORS_ORIGINS\"}}"
             oc patch configmap coffeeshop-config -n quarkuscoffeeshop-demo -p "{\"data\":{\"LOYALTY_STREAM_URL\":\"http://$CONFIG_LOYALTY_STREAM_URL\"}}"
             oc patch configmap coffeeshop-config -n quarkuscoffeeshop-demo -p "{\"data\":{\"STREAM_URL\":\"http://$CONFIG_STREAM_URL\"}}"
