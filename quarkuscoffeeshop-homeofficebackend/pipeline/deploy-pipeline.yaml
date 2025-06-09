@@ -74,6 +74,9 @@ spec:
             oc new-app homeoffice-backend --name=homeoffice-backend --allow-missing-images -n quarkuscoffeeshop-demo
             oc set env deployment/homeoffice-backend JAVA_OPTS_APPEND="-Dquarkus.profile=prod" -n quarkuscoffeeshop-demo
 
+            oc expose deployment homeoffice-backend --port=8080 --name=homeoffice-backend -n quarkuscoffeeshop-demo
+            oc expose svc homeoffice-backend --name=homeoffice-backend -n quarkuscoffeeshop-demo
+
             POSTGRESQL_JDBC_URL=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.PGSQL_URL}')
             oc set env deployment/homeoffice-backend POSTGRESQL_JDBC_URL=$POSTGRESQL_JDBC_URL -n quarkuscoffeeshop-demo
             POSTGRESQL_USER=$(oc get secret coffeeshopdb-pguser-coffeeshopadmin -n quarkuscoffeeshop-demo -o=jsonpath='{.data.user}' | base64 --decode)
@@ -81,10 +84,10 @@ spec:
             POSTGRESQL_PASSWORD=$(oc get secret coffeeshopdb-pguser-coffeeshopadmin -n quarkuscoffeeshop-demo -o=jsonpath='{.data.password}' | base64 --decode)
             oc set env deployment/homeoffice-backend POSTGRESQL_PASSWORD=$POSTGRESQL_PASSWORD -n quarkuscoffeeshop-demo
 
-            CONFIG_CORS_ORIGINS=$(oc get route quarkuscoffeeshop-web -o jsonpath='{.spec.host}' -n quarkuscoffeeshop-demo)
-            CONFIG_LOYALTY_STREAM_URL=$(oc get route quarkuscoffeeshop-web -o jsonpath='{.spec.host}' -n quarkuscoffeeshop-demo)/dashboard/loyaltystream)
-            CONFIG_STREAM_URL=$(oc get route quarkuscoffeeshop-web -o jsonpath='{.spec.host}' -n quarkuscoffeeshop-demo)/dashboard/stream)
-            CONFIG_GRAHQL_URL=$("http://$(oc get route homeoffice-backend -o jsonpath='{.spec.host}')")
+            CONFIG_CORS_ORIGINS=$(oc get route homeoffice-backend -o jsonpath='{.spec.host}' -n quarkuscoffeeshop-demo)
+            CONFIG_LOYALTY_STREAM_URL=$(oc get route homeoffice-backend -o jsonpath='{.spec.host}' -n quarkuscoffeeshop-demo)/dashboard/loyaltystream
+            CONFIG_STREAM_URL=$(oc get route homeoffice-backend -o jsonpath='{.spec.host}' -n quarkuscoffeeshop-demo)/dashboard/stream
+            CONFIG_GRAHQL_URL=$(oc get route homeoffice-backend -o jsonpath='{.spec.host}' -n quarkuscoffeeshop-demo)/graphql
             oc patch configmap coffeeshop-config -n quarkuscoffeeshop-demo -p "{\"data\":{\"CORS_ORIGINS\":\"http://$CONFIG_CORS_ORIGINS\"}}"
             oc patch configmap coffeeshop-config -n quarkuscoffeeshop-demo -p "{\"data\":{\"LOYALTY_STREAM_URL\":\"http://$CONFIG_LOYALTY_STREAM_URL\"}}"
             oc patch configmap coffeeshop-config -n quarkuscoffeeshop-demo -p "{\"data\":{\"STREAM_URL\":\"http://$CONFIG_STREAM_URL\"}}"
@@ -101,8 +104,6 @@ spec:
             GRAHQL_URL=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.GRAHQL_URL}')
             oc set env deployment/homeoffice-backend GRAHQL_URL=$GRAHQL_URL -n quarkuscoffeeshop-demo
 
-            oc expose deployment homeoffice-backend --port=8080 --name=homeoffice-backend -n quarkuscoffeeshop-demo
-            oc expose svc homeoffice-backend --name=homeoffice-backend -n quarkuscoffeeshop-demo
       runAfter:
         - maven-run
       taskRef:
