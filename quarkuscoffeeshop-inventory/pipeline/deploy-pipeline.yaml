@@ -65,6 +65,9 @@ spec:
       params:
         - name: SCRIPT
           value: |
+            #!/bin/bash
+            set -e
+
             oc delete all -l app=inventory -n quarkuscoffeeshop-demo || true
             oc delete bc/inventory -n quarkuscoffeeshop-demo || true
             oc new-build --binary --name=inventory --image-stream=java:openjdk-17-ubi8 -n quarkuscoffeeshop-demo
@@ -90,6 +93,7 @@ spec:
             oc set env deployment/inventory PGSQL_USER=$PGSQL_USER -n quarkuscoffeeshop-demo
             PGSQL_PASS=$(oc get secret coffeeshopdb-pguser-coffeeshopadmin -n quarkuscoffeeshop-demo -o=jsonpath='{.data.password}' | base64 --decode)
             oc set env deployment/inventory PGSQL_PASS=$PGSQL_PASS -n quarkuscoffeeshop-demo
+            HOMEOFFICE_UI_URLS
       runAfter:
         - maven-run
       taskRef:

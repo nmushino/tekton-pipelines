@@ -67,6 +67,9 @@ spec:
       params:
         - name: SCRIPT
           value: |
+            #!/bin/bash
+            set -e
+
             oc delete all -l app=counter -n quarkuscoffeeshop-demo || true
             oc delete bc/counter -n quarkuscoffeeshop-demo || true
             oc new-build --binary --name=counter --image-stream=java:openjdk-17-ubi8 -n quarkuscoffeeshop-demo

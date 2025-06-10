@@ -65,6 +65,9 @@ spec:
       params:
         - name: SCRIPT
           value: |
+            #!/bin/bash
+            set -e
+
             oc delete all -l app=kitchen -n quarkuscoffeeshop-demo || true
             oc delete bc/kitchen -n quarkuscoffeeshop-demo || true
             oc new-build --binary --name=kitchen --image-stream=java:openjdk-11-ubi8 -n quarkuscoffeeshop-demo
