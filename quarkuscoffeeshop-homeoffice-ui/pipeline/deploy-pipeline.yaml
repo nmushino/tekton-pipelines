@@ -73,14 +73,11 @@ spec:
             oc delete istag homeoffice-ui:latest -n quarkuscoffeeshop-demo || true
 
             echo "legacy-peer-deps=true" > .npmrc
-            
+            ./set-endpoint.sh
             oc new-build --binary --name=homeoffice-ui --image-stream=openshift/nodejs:18-ubi8 -n quarkuscoffeeshop-demo
             oc start-build homeoffice-ui --from-dir=. --follow -n quarkuscoffeeshop-demo
             oc new-app homeoffice-ui --name=homeoffice-ui --allow-missing-images -n quarkuscoffeeshop-demo
             oc expose svc homeoffice-ui --name=homeoffice-ui -n quarkuscoffeeshop-demo || true
-            
-            CONFIG_ALLOWED_ORIGINS=$(oc get route homeoffice-ui -o jsonpath='{.spec.host}' -n quarkuscoffeeshop-demo)
-            oc set env deployment/homeoffice-ui ALLOWED_ORIGINS=http://$CONFIG_ALLOWED_ORIGINS -n quarkuscoffeeshop-demo
 
             oc annotate deployment -l app=homeoffice-ui app.openshift.io/connects-to='["homeoffice-backend"]'
             oc annotate deployment -l app=homeoffice-backend app.openshift.io/connects-to='["postgres"]'

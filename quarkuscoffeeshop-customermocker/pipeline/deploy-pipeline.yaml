@@ -94,8 +94,6 @@ spec:
             oc set env deployment/web CORS_ORIGINS=$CORS_ORIGINS -n quarkuscoffeeshop-demo
             STORE_ID=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.STORE_ID}')
             oc set env deployment/web STORE_ID=$STORE_ID -n quarkuscoffeeshop-demo
-            REST_URL=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.REST_URL}')
-            oc set env deployment/customermocker REST_URL=$REST_URL -n quarkuscoffeeshop-demo
       runAfter:
         - maven-run
       taskRef:
