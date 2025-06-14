@@ -68,7 +68,10 @@ spec:
             #!/bin/bash
             set -e
 
-            oc delete all -l app=homeoffice-ui -n quarkuscoffeeshop-demo || true
+            oc delete route homeoffice-ui -n quarkuscoffeeshop-demo || true
+            oc delete svc homeoffice-ui -n quarkuscoffeeshop-demo || true
+            oc delete deployment homeoffice-ui -n quarkuscoffeeshop-demo || true
+            oc delete is homeoffice-ui -n quarkuscoffeeshop-demo || true
             oc delete bc/homeoffice-ui -n quarkuscoffeeshop-demo || true
             oc delete istag homeoffice-ui:latest -n quarkuscoffeeshop-demo || true
 
@@ -79,11 +82,11 @@ spec:
             oc new-app homeoffice-ui --name=homeoffice-ui --allow-missing-images -n quarkuscoffeeshop-demo
             oc expose svc homeoffice-ui --name=homeoffice-ui -n quarkuscoffeeshop-demo || true
 
-            oc annotate deployment -l app=homeoffice-ui app.openshift.io/connects-to='["homeoffice-backend"]'
-            oc annotate deployment -l app=homeoffice-backend app.openshift.io/connects-to='["postgres"]'
-            oc label dc -l app=postgres app.kubernetes.io/name=postgresql
-            oc label deployment -l app=homeoffice-backend app.kubernetes.io/name=quarkus
-            oc label deployment -l app=homeoffice-ui app.kubernetes.io/name=nodejs
+            oc annotate deployment -l app=homeoffice-ui app.openshift.io/connects-to='["homeoffice-backend"]' -n quarkuscoffeeshop-demo
+            oc annotate deployment -l app=homeoffice-backend app.openshift.io/connects-to='["postgres"]' -n quarkuscoffeeshop-demo
+            oc label dc -l app=postgres app.kubernetes.io/name=postgresql -n quarkuscoffeeshop-demo
+            oc label deployment -l app=homeoffice-backend app.kubernetes.io/name=quarkus -n quarkuscoffeeshop-demo
+            oc label deployment -l app=homeoffice-ui app.kubernetes.io/name=nodejs -n quarkuscoffeeshop-demo
 
             oc patch deployment homeoffice-ui -n quarkuscoffeeshop-demo --type=json -p='[
               {
