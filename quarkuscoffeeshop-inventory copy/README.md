@@ -1,8 +1,7 @@
-## quarkuscoffeeshop-counter tekton pipeline
-![quarkuscoffeeshop-counter](../images/quarkuscoffeeshop-counter.png)
+# quarkuscoffeeshop-inventory tekton pipeline
 
 ## Deploy pipelines using kustomize
-> You may fork this repo and make edit to the `application-deployment/store/quarkuscoffeeshop-counter/transformer-patches.yaml` in for GitOps or argocd
+> You may fork this repo and make edit to the `application-deployment/store/quarkuscoffeeshop-inventory/transformer-patches.yaml` in for GitOps or argocd
 ---
 **Create Projects and configure permissions**
 ```
@@ -14,20 +13,20 @@ oc adm policy add-role-to-user admin system:serviceaccount:quarkuscoffeeshop-cic
 ```
 **Run the Kustomize command to deploy pipelines** 
 ```
-kustomize build quarkuscoffeeshop-counter | oc create -f - 
+kustomize build quarkuscoffeeshop-inventory | oc create -f - 
 ```
 
 **Update Environment Variables in deployment**
 ```
-oc edit deployment.apps/quarkuscoffeeshop-counter  -n quarkuscoffeeshop-demo
+oc edit deployment.apps/quarkuscoffeeshop-inventory  -n quarkuscoffeeshop-demo
 ```
 
 ## Deploy pipelines Manually 
 ---
 **configure pvc**
 ```
-oc -n quarkuscoffeeshop-cicd create -f quarkuscoffeeshop-counter/pvc/pvc.yml
-oc -n quarkuscoffeeshop-cicd create -f  ./quarkuscoffeeshop-counter/pvc/maven-source-pvc.yml
+oc -n quarkuscoffeeshop-cicd create -f quarkuscoffeeshop-inventory/pvc/pvc.yml
+oc -n quarkuscoffeeshop-cicd create -f  ./quarkuscoffeeshop-inventory/pvc/maven-source-pvc.yml
 ```
 
 **configure Tasks**
@@ -39,18 +38,18 @@ oc -n  quarkuscoffeeshop-cicd create -f ./common-functions/tasks/maven.yaml
 
 **Configure push image to quay task**
 ```
-oc -n  quarkuscoffeeshop-cicd create -f ./quarkuscoffeeshop-counter/tektontasks/pushImageToQuay.yaml
+oc -n  quarkuscoffeeshop-cicd create -f ./quarkuscoffeeshop-inventory/tektontasks/pushImageToQuay.yaml
 ```
 
 **configure Resources**
 ```
-oc -n quarkuscoffeeshop-cicd create -f  ./quarkuscoffeeshop-counter/resources/git-pipeline-resource.yaml
-oc -n quarkuscoffeeshop-cicd create -f  ./quarkuscoffeeshop-counter/resources/image-pipeline-resource.yaml
+oc -n quarkuscoffeeshop-cicd create -f  ./quarkuscoffeeshop-inventory/resources/git-pipeline-resource.yaml
+oc -n quarkuscoffeeshop-cicd create -f  ./quarkuscoffeeshop-inventory/resources/image-pipeline-resource.yaml
 ```
 
 **Create Pipeline**
 ```
-oc -n quarkuscoffeeshop-cicd create -f  ./quarkuscoffeeshop-counter/pipeline/deploy-pipeline.yaml
+oc -n quarkuscoffeeshop-cicd create -f  ./quarkuscoffeeshop-inventory/pipeline/deploy-pipeline.yaml
 ```
 
 
@@ -61,10 +60,6 @@ oc policy add-role-to-group system:image-puller system:serviceaccounts:quarkusco
 oc adm policy add-role-to-user admin system:serviceaccount:quarkuscoffeeshop-cicd:pipeline -n quarkuscoffeeshop-demo
 
 oc project quarkuscoffeeshop-demo
-oc create -f application-deployment/store/quarkuscoffeeshop-counter/quarkuscoffeeshop-counter.yaml  -n quarkuscoffeeshop-demo
-```
-
-**Update Enviornment Variables in deployment**
-```
-oc edit deployment.apps/quarkuscoffeeshop-counter
+oc new-app quarkuscoffeeshop-cicd/quarkuscoffeeshop-inventory:latest -n quarkuscoffeeshop-demo
+oc expose service/quarkuscoffeeshop-inventory -n quarkuscoffeeshop-demo
 ```
