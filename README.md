@@ -56,7 +56,7 @@ sudo tar xvzf tkn_0.18.0_Linux_x86_64.tar.gz -C /usr/local/bin/ tkn
 brew install tektoncd-cli
 ```
 
-**Create Quarkus Coffee Shop project**
+**Create Quarkus Drone Shop project**
 ```
 oc new-project quarkuscoffeeshop-cicd
 ```
