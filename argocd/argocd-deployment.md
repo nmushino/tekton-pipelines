@@ -1,10 +1,10 @@
 # Quarkus Coffeshop and Argocd
 
-## Install the ACM_WORKLOADS option from the deploy-quarkuscoffeeshop-ansible.sh
+## Install the ACM_WORKLOADS option from the deploy-quarkusdroneshop-ansible.sh
 
 ```
-$ curl -OL https://raw.githubusercontent.com/quarkuscoffeeshop/quarkuscoffeeshop-ansible/dev/files/deploy-quarkuscoffeeshop-ansible.sh
-$ chmod +x deploy-quarkuscoffeeshop-ansible.sh
+$ curl -OL https://raw.githubusercontent.com/quarkusdroneshop/quarkusdroneshop-ansible/dev/files/deploy-quarkusdroneshop-ansible.sh
+$ chmod +x deploy-quarkusdroneshop-ansible.sh
 ```
 ## The script will provide the following
 * Gogs server
@@ -14,7 +14,7 @@ $ chmod +x deploy-quarkuscoffeeshop-ansible.sh
 * AMQ Streams
 * Postgres Template deployment
 * homeoffice Tekton pipelines
-* quarkus-coffeeshop Tekton pipelines
+* quarkus-droneshop Tekton pipelines
 ```
 $ cat >env.variables<<EOF
 ACM_WORKLOADS=y
@@ -24,7 +24,7 @@ MONGODB_OPERATOR=n
 MONGODB=n
 HELM_DEPLOYMENT=n
 EOF
-$ ./deploy-quarkuscoffeeshop-ansible.sh -d ocp4.example.com -t sha-123456789 -p 123456789 -s ATLANTA
+$ ./deploy-quarkusdroneshop-ansible.sh -d ocp4.example.com -t sha-123456789 -p 123456789 -s ATLANTA
 ```
 
 **Install argocd cli**
@@ -54,18 +54,18 @@ echo "$argoPass"
 
 
 ## Configure REPO URL
-Fork [tekton-pipelines](https://github.com/quarkuscoffeeshop/tekton-pipelines.git) and update REPO_URL.
+Fork [tekton-pipelines](https://github.com/quarkusdroneshop/tekton-pipelines.git) and update REPO_URL.
 ```
-$ export REPO_URL='https://github.com/quarkuscoffeeshop/tekton-pipelines.git'
+$ export REPO_URL='https://github.com/quarkusdroneshop/tekton-pipelines.git'
 # Example Alternative Repo
-REPO_URL='http://gogs-quarkuscoffeeshop-cicd.apps.cluster-e6dd.e6dd.sandbox568.opentlc.com/user1/tekton-pipelines.git'
+REPO_URL='http://gogs-quarkusdroneshop-cicd.apps.cluster-e6dd.e6dd.sandbox568.opentlc.com/user1/tekton-pipelines.git'
 ```
 
 ## HOME Office (Backoffice)
-**quarkuscoffeeshop-homeoffice-ui argo application**  
+**quarkusdroneshop-homeoffice-ui argo application**  
 ```
-sed "s|%REPO_NAME%|'${REPO_URL}'|g" argocd/quarkuscoffeeshop-homeoffice-ui/quarkuscoffeeshop-homeoffice-ui-template.yaml  > argocd/quarkuscoffeeshop-homeoffice-ui/quarkuscoffeeshop-homeoffice-ui.yaml
-oc create -f argocd/quarkuscoffeeshop-homeoffice-ui/quarkuscoffeeshop-homeoffice-ui.yaml  -n openshift-gitops
+sed "s|%REPO_NAME%|'${REPO_URL}'|g" argocd/quarkusdroneshop-homeoffice-ui/quarkusdroneshop-homeoffice-ui-template.yaml  > argocd/quarkusdroneshop-homeoffice-ui/quarkusdroneshop-homeoffice-ui.yaml
+oc create -f argocd/quarkusdroneshop-homeoffice-ui/quarkusdroneshop-homeoffice-ui.yaml  -n openshift-gitops
 ```
 
 **homeoffice-backend argo application**  
@@ -82,43 +82,43 @@ oc create -f argocd/homeoffice-ingress/homeoffice-ingress.yaml  -n openshift-git
 
 ## Store front microservices  
 
-**quarkuscoffeeshop-barista argo application**  
+**quarkusdroneshop-qdca10 argo application**  
 ```
-sed "s|%REPO_NAME%|'${REPO_URL}'|g" argocd/quarkuscoffeeshop-barista/quarkuscoffeeshop-barista-template.yaml  > argocd/quarkuscoffeeshop-barista/quarkuscoffeeshop-barista.yaml
-oc create -f argocd/quarkuscoffeeshop-barista/quarkuscoffeeshop-barista.yaml  -n openshift-gitops
-```
-
-**quarkuscoffeeshop-counter argo application**  
-```
-sed "s|%REPO_NAME%|'${REPO_URL}'|g" argocd/quarkuscoffeeshop-counter/quarkuscoffeeshop-counter-template.yaml  > argocd/quarkuscoffeeshop-counter/quarkuscoffeeshop-counter.yaml
-oc create -f argocd/quarkuscoffeeshop-counter/quarkuscoffeeshop-counter.yaml  -n openshift-gitops
+sed "s|%REPO_NAME%|'${REPO_URL}'|g" argocd/quarkusdroneshop-qdca10/quarkusdroneshop-qdca10-template.yaml  > argocd/quarkusdroneshop-qdca10/quarkusdroneshop-qdca10.yaml
+oc create -f argocd/quarkusdroneshop-qdca10/quarkusdroneshop-qdca10.yaml  -n openshift-gitops
 ```
 
-**quarkuscoffeeshop-inventory argo application**  
+**quarkusdroneshop-counter argo application**  
 ```
-sed "s|%REPO_NAME%|'${REPO_URL}'|g" argocd/quarkuscoffeeshop-inventory/quarkuscoffeeshop-inventory-template.yaml  > argocd/quarkuscoffeeshop-inventory/quarkuscoffeeshop-inventory.yaml
-oc create -f argocd/quarkuscoffeeshop-inventory/quarkuscoffeeshop-inventory.yaml  -n openshift-gitops
+sed "s|%REPO_NAME%|'${REPO_URL}'|g" argocd/quarkusdroneshop-counter/quarkusdroneshop-counter-template.yaml  > argocd/quarkusdroneshop-counter/quarkusdroneshop-counter.yaml
+oc create -f argocd/quarkusdroneshop-counter/quarkusdroneshop-counter.yaml  -n openshift-gitops
+```
+
+**quarkusdroneshop-inventory argo application**  
+```
+sed "s|%REPO_NAME%|'${REPO_URL}'|g" argocd/quarkusdroneshop-inventory/quarkusdroneshop-inventory-template.yaml  > argocd/quarkusdroneshop-inventory/quarkusdroneshop-inventory.yaml
+oc create -f argocd/quarkusdroneshop-inventory/quarkusdroneshop-inventory.yaml  -n openshift-gitops
 ```
 
 
-**quarkuscoffeeshop-kitchen argo application**  
+**quarkusdroneshop-qdca10pro argo application**  
 ```
-sed "s|%REPO_NAME%|'${REPO_URL}'|g" argocd/quarkuscoffeeshop-kitchen/quarkuscoffeeshop-kitchen-template.yaml  > argocd/quarkuscoffeeshop-kitchen/quarkuscoffeeshop-kitchen.yaml
-oc create -f argocd/quarkuscoffeeshop-kitchen/quarkuscoffeeshop-kitchen.yaml  -n openshift-gitops
+sed "s|%REPO_NAME%|'${REPO_URL}'|g" argocd/quarkusdroneshop-qdca10pro/quarkusdroneshop-qdca10pro-template.yaml  > argocd/quarkusdroneshop-qdca10pro/quarkusdroneshop-qdca10pro.yaml
+oc create -f argocd/quarkusdroneshop-qdca10pro/quarkusdroneshop-qdca10pro.yaml  -n openshift-gitops
 ```
 
-**quarkuscoffeeshop-web argo application**   
+**quarkusdroneshop-web argo application**   
 ```
-sed "s|%REPO_NAME%|'${REPO_URL}'|g" argocd/quarkuscoffeeshop-web/quarkuscoffeeshop-web-template.yaml  > argocd/quarkuscoffeeshop-web/quarkuscoffeeshop-web.yaml
-oc create -f argocd/quarkuscoffeeshop-web/quarkuscoffeeshop-web.yaml  -n openshift-gitops
+sed "s|%REPO_NAME%|'${REPO_URL}'|g" argocd/quarkusdroneshop-web/quarkusdroneshop-web-template.yaml  > argocd/quarkusdroneshop-web/quarkusdroneshop-web.yaml
+oc create -f argocd/quarkusdroneshop-web/quarkusdroneshop-web.yaml  -n openshift-gitops
 ```
 
 ## RHEL Edge Pipelines
-**quarkuscoffeeshop-majestic-monolith argo application**   
+**quarkusdroneshop-majestic-monolith argo application**   
 ```
-sed "s|%REPO_NAME%|'${REPO_URL}'|g" argocd/quarkuscoffeeshop-majestic-monolith/edge-application-template.yaml > argocd/quarkuscoffeeshop-majestic-monolith/edge-application.yaml
+sed "s|%REPO_NAME%|'${REPO_URL}'|g" argocd/quarkusdroneshop-majestic-monolith/edge-application-template.yaml > argocd/quarkusdroneshop-majestic-monolith/edge-application.yaml
 
-oc create -f argocd/quarkuscoffeeshop-majestic-monolith/edge-application.yaml  -n quarkuscoffeeshop-cicd
+oc create -f argocd/quarkusdroneshop-majestic-monolith/edge-application.yaml  -n quarkusdroneshop-cicd
 ```
 
 

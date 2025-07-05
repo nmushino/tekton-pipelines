@@ -1,10 +1,10 @@
 apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
-  name: build-and-push-quarkuscoffeeshop-inventory
-  namespace: quarkuscoffeeshop-cicd
+  name: build-and-push-quarkusdroneshop-inventory
+  namespace: quarkusdroneshop-cicd
   labels:
-    app: quarkuscoffeeshop-inventory
+    app: quarkusdroneshop-inventory
 spec:
   params:
     - default: latest
@@ -15,7 +15,7 @@ spec:
     - name: fetch-repository
       params:
         - name: url
-          value: 'https://github.com/nmushino/quarkuscoffeeshop-inventory'
+          value: 'https://github.com/nmushino/quarkusdroneshop-inventory'
         - name: subdirectory
           value: ''
         - name: deleteExisting
@@ -54,7 +54,7 @@ spec:
 #          value: /workspace/source/src/main/docker/Dockerfile.jvm
 #        - name: IMAGE
 #          value: >-
-#            image-registry.openshift-image-registry.svc:5000/quarkuscoffeeshop-demo/quarkuscoffeeshop-inventory:$(params.IMAGE_TAG)
+#            image-registry.openshift-image-registry.svc:5000/quarkusdroneshop-demo/quarkusdroneshop-inventory:$(params.IMAGE_TAG)
 #      runAfter:
 #        - maven-run
 #      taskRef:
@@ -70,24 +70,24 @@ spec:
             #!/bin/bash
             set -e
 
-            oc delete all -l app=inventory -n quarkuscoffeeshop-demo || true
-            oc delete bc/inventory -n quarkuscoffeeshop-demo || true
-            oc new-build --binary --name=inventory --image-stream=java:openjdk-17-ubi8 -n quarkuscoffeeshop-demo
-            oc start-build inventory --from-dir=target/quarkus-app/ --follow -n quarkuscoffeeshop-demo
-            oc new-app inventory --name=inventory --allow-missing-images -n quarkuscoffeeshop-demo
-            oc set env deployment/inventory JAVA_OPTS_APPEND="-Dquarkus.profile=prod" -n quarkuscoffeeshop-demo
+            oc delete all -l app=inventory -n quarkusdroneshop-demo || true
+            oc delete bc/inventory -n quarkusdroneshop-demo || true
+            oc new-build --binary --name=inventory --image-stream=java:openjdk-17-ubi8 -n quarkusdroneshop-demo
+            oc start-build inventory --from-dir=target/quarkus-app/ --follow -n quarkusdroneshop-demo
+            oc new-app inventory --name=inventory --allow-missing-images -n quarkusdroneshop-demo
+            oc set env deployment/inventory JAVA_OPTS_APPEND="-Dquarkus.profile=prod" -n quarkusdroneshop-demo
 
-            PGSQL_URL=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.PGSQL_URL}')
-            oc set env deployment/inventory PGSQL_URL=$PGSQL_URL -n quarkuscoffeeshop-demo
-            PGSQL_USER=$(oc get secret coffeeshopdb-pguser-coffeeshopadmin -n quarkuscoffeeshop-demo -o=jsonpath='{.data.user}' | base64 --decode)
-            oc set env deployment/inventory PGSQL_USER=$PGSQL_USER -n quarkuscoffeeshop-demo
-            PGSQL_PASS=$(oc get secret coffeeshopdb-pguser-coffeeshopadmin -n quarkuscoffeeshop-demo -o=jsonpath='{.data.password}' | base64 --decode)
-            oc set env deployment/inventory PGSQL_PASS=$PGSQL_PASS -n quarkuscoffeeshop-demo
+            PGSQL_URL=$(oc get configmap droneshop-config -n quarkusdroneshop-demo -o=jsonpath='{.data.PGSQL_URL}')
+            oc set env deployment/inventory PGSQL_URL=$PGSQL_URL -n quarkusdroneshop-demo
+            PGSQL_USER=$(oc get secret droneshopdb-pguser-droneshopadmin -n quarkusdroneshop-demo -o=jsonpath='{.data.user}' | base64 --decode)
+            oc set env deployment/inventory PGSQL_USER=$PGSQL_USER -n quarkusdroneshop-demo
+            PGSQL_PASS=$(oc get secret droneshopdb-pguser-droneshopadmin -n quarkusdroneshop-demo -o=jsonpath='{.data.password}' | base64 --decode)
+            oc set env deployment/inventory PGSQL_PASS=$PGSQL_PASS -n quarkusdroneshop-demo
             
-            KAFKA_URL=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.KAFKA_BOOTSTRAP_URLS}')
-            oc set env deployment/inventory KAFKA_BOOTSTRAP_URLS=$KAFKA_URL -n quarkuscoffeeshop-demo
-            QUARKUS_LOG_LEVEL=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.QUARKUS_LOG_LEVEL}')
-            oc set env deployment/inventory QUARKUS_LOG_LEVEL=$QUARKUS_LOG_LEVEL -n quarkuscoffeeshop-demo
+            KAFKA_URL=$(oc get configmap droneshop-config -n quarkusdroneshop-demo -o=jsonpath='{.data.KAFKA_BOOTSTRAP_URLS}')
+            oc set env deployment/inventory KAFKA_BOOTSTRAP_URLS=$KAFKA_URL -n quarkusdroneshop-demo
+            QUARKUS_LOG_LEVEL=$(oc get configmap droneshop-config -n quarkusdroneshop-demo -o=jsonpath='{.data.QUARKUS_LOG_LEVEL}')
+            oc set env deployment/inventory QUARKUS_LOG_LEVEL=$QUARKUS_LOG_LEVEL -n quarkusdroneshop-demo
 
       runAfter:
         - maven-run

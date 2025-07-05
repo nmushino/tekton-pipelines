@@ -1,10 +1,10 @@
 apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
-  name: build-and-push-quarkuscoffeeshop-homeoffice-ui
-  namespace: quarkuscoffeeshop-cicd
+  name: build-and-push-quarkusdroneshop-homeoffice-ui
+  namespace: quarkusdroneshop-cicd
   labels:
-    app: quarkuscoffeeshop-homeoffice-ui
+    app: quarkusdroneshop-homeoffice-ui
 spec:
   params:
     - default: latest
@@ -15,7 +15,7 @@ spec:
     - name: fetch-repository
       params:
         - name: url
-          value: 'https://github.com/nmushino/quarkuscoffeeshop-homeoffice-ui'
+          value: 'https://github.com/nmushino/quarkusdroneshop-homeoffice-ui'
         - name: subdirectory
           value: ''
         - name: deleteExisting
@@ -52,7 +52,7 @@ spec:
 #          value: /workspace/source/src/main/docker/Dockerfile.jvm
 #        - name: IMAGE
 #          value: >-
-#            image-registry.openshift-image-registry.svc:5000/quarkuscoffeeshop-demo/quarkuscoffeeshop-homeoffice-backend:$(params.IMAGE_TAG)
+#            image-registry.openshift-image-registry.svc:5000/quarkusdroneshop-demo/quarkusdroneshop-homeoffice-backend:$(params.IMAGE_TAG)
 #      runAfter:
 #        - maven-run
 #      taskRef:
@@ -68,27 +68,27 @@ spec:
             #!/bin/bash
             set -e
 
-            oc delete route homeoffice-ui -n quarkuscoffeeshop-demo || true
-            oc delete svc homeoffice-ui -n quarkuscoffeeshop-demo || true
-            oc delete deployment homeoffice-ui -n quarkuscoffeeshop-demo || true
-            oc delete is homeoffice-ui -n quarkuscoffeeshop-demo || true
-            oc delete bc/homeoffice-ui -n quarkuscoffeeshop-demo || true
-            oc delete istag homeoffice-ui:latest -n quarkuscoffeeshop-demo || true
+            oc delete route homeoffice-ui -n quarkusdroneshop-demo || true
+            oc delete svc homeoffice-ui -n quarkusdroneshop-demo || true
+            oc delete deployment homeoffice-ui -n quarkusdroneshop-demo || true
+            oc delete is homeoffice-ui -n quarkusdroneshop-demo || true
+            oc delete bc/homeoffice-ui -n quarkusdroneshop-demo || true
+            oc delete istag homeoffice-ui:latest -n quarkusdroneshop-demo || true
 
             echo "legacy-peer-deps=true" > .npmrc
             ./set-endpoint.sh
-            oc new-build --binary --name=homeoffice-ui --image-stream=openshift/nodejs:18-ubi8 -n quarkuscoffeeshop-demo
-            oc start-build homeoffice-ui --from-dir=. --follow -n quarkuscoffeeshop-demo
-            oc new-app homeoffice-ui --name=homeoffice-ui --allow-missing-images -n quarkuscoffeeshop-demo
-            oc expose svc homeoffice-ui --name=homeoffice-ui -n quarkuscoffeeshop-demo || true
+            oc new-build --binary --name=homeoffice-ui --image-stream=openshift/nodejs:18-ubi8 -n quarkusdroneshop-demo
+            oc start-build homeoffice-ui --from-dir=. --follow -n quarkusdroneshop-demo
+            oc new-app homeoffice-ui --name=homeoffice-ui --allow-missing-images -n quarkusdroneshop-demo
+            oc expose svc homeoffice-ui --name=homeoffice-ui -n quarkusdroneshop-demo || true
 
-            oc annotate deployment -l app=homeoffice-ui app.openshift.io/connects-to='["homeoffice-backend"]' -n quarkuscoffeeshop-demo
-            oc annotate deployment -l app=homeoffice-backend app.openshift.io/connects-to='["postgres"]' -n quarkuscoffeeshop-demo
-            oc label dc -l app=postgres app.kubernetes.io/name=postgresql -n quarkuscoffeeshop-demo
-            oc label deployment -l app=homeoffice-backend app.kubernetes.io/name=quarkus -n quarkuscoffeeshop-demo
-            oc label deployment -l app=homeoffice-ui app.kubernetes.io/name=nodejs -n quarkuscoffeeshop-demo
+            oc annotate deployment -l app=homeoffice-ui app.openshift.io/connects-to='["homeoffice-backend"]' -n quarkusdroneshop-demo
+            oc annotate deployment -l app=homeoffice-backend app.openshift.io/connects-to='["postgres"]' -n quarkusdroneshop-demo
+            oc label dc -l app=postgres app.kubernetes.io/name=postgresql -n quarkusdroneshop-demo
+            oc label deployment -l app=homeoffice-backend app.kubernetes.io/name=quarkus -n quarkusdroneshop-demo
+            oc label deployment -l app=homeoffice-ui app.kubernetes.io/name=nodejs -n quarkusdroneshop-demo
 
-            oc patch deployment homeoffice-ui -n quarkuscoffeeshop-demo --type=json -p='[
+            oc patch deployment homeoffice-ui -n quarkusdroneshop-demo --type=json -p='[
               {
                 "op": "add",
                 "path": "/spec/template/spec/containers/0/securityContext",

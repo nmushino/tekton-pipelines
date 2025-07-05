@@ -1,10 +1,10 @@
 apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
-  name: build-and-push-quarkuscoffeeshop-homeoffice-backend
-  namespace: quarkuscoffeeshop-cicd
+  name: build-and-push-quarkusdroneshop-homeoffice-backend
+  namespace: quarkusdroneshop-cicd
   labels:
-    app: quarkuscoffeeshop-homeoffice-backend
+    app: quarkusdroneshop-homeoffice-backend
 spec:
   params:
     - default: latest
@@ -54,7 +54,7 @@ spec:
 #          value: /workspace/source/src/main/docker/Dockerfile.jvm
 #        - name: IMAGE
 #          value: >-
-#            image-registry.openshift-image-registry.svc:5000/quarkuscoffeeshop-demo/quarkuscoffeeshop-homeoffice-backend:$(params.IMAGE_TAG)
+#            image-registry.openshift-image-registry.svc:5000/quarkusdroneshop-demo/quarkusdroneshop-homeoffice-backend:$(params.IMAGE_TAG)
 #      runAfter:
 #        - maven-run
 #      taskRef:
@@ -70,45 +70,45 @@ spec:
             #!/bin/bash
             set -e
 
-            oc delete route homeoffice-backend -n quarkuscoffeeshop-demo || true
-            oc delete svc homeoffice-backend -n quarkuscoffeeshop-demo || true
-            oc delete deployment homeoffice-backend -n quarkuscoffeeshop-demo || true
-            oc delete is homeoffice-backend -n quarkuscoffeeshop-demo || true
-            oc delete bc/homeoffice-backend -n quarkuscoffeeshop-demo || true
-            oc delete istag homeoffice-backend:latest -n quarkuscoffeeshop-demo || true
+            oc delete route homeoffice-backend -n quarkusdroneshop-demo || true
+            oc delete svc homeoffice-backend -n quarkusdroneshop-demo || true
+            oc delete deployment homeoffice-backend -n quarkusdroneshop-demo || true
+            oc delete is homeoffice-backend -n quarkusdroneshop-demo || true
+            oc delete bc/homeoffice-backend -n quarkusdroneshop-demo || true
+            oc delete istag homeoffice-backend:latest -n quarkusdroneshop-demo || true
 
-            oc new-build --binary --name=homeoffice-backend --image-stream=java:openjdk-17-ubi8 -n quarkuscoffeeshop-demo
-            oc start-build homeoffice-backend --from-dir=target/quarkus-app/ --follow -n quarkuscoffeeshop-demo
-            oc new-app homeoffice-backend --name=homeoffice-backend --allow-missing-images -n quarkuscoffeeshop-demo
-            oc set env deployment/homeoffice-backend JAVA_OPTS_APPEND="-Dquarkus.profile=prod" -n quarkuscoffeeshop-demo
+            oc new-build --binary --name=homeoffice-backend --image-stream=java:openjdk-17-ubi8 -n quarkusdroneshop-demo
+            oc start-build homeoffice-backend --from-dir=target/quarkus-app/ --follow -n quarkusdroneshop-demo
+            oc new-app homeoffice-backend --name=homeoffice-backend --allow-missing-images -n quarkusdroneshop-demo
+            oc set env deployment/homeoffice-backend JAVA_OPTS_APPEND="-Dquarkus.profile=prod" -n quarkusdroneshop-demo
 
-            oc expose deployment homeoffice-backend --port=8080 --name=homeoffice-backend -n quarkuscoffeeshop-demo || true
-            oc expose svc homeoffice-backend --name=homeoffice-backend -n quarkuscoffeeshop-demo || true
+            oc expose deployment homeoffice-backend --port=8080 --name=homeoffice-backend -n quarkusdroneshop-demo || true
+            oc expose svc homeoffice-backend --name=homeoffice-backend -n quarkusdroneshop-demo || true
 
-            POSTGRESQL_JDBC_URL=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.PGSQL_URL}')
-            oc set env deployment/homeoffice-backend POSTGRESQL_JDBC_URL=$POSTGRESQL_JDBC_URL -n quarkuscoffeeshop-demo
-            POSTGRESQL_USER=$(oc get secret coffeeshopdb-pguser-coffeeshopadmin -n quarkuscoffeeshop-demo -o=jsonpath='{.data.user}' | base64 --decode)
-            oc set env deployment/homeoffice-backend POSTGRESQL_USER=$POSTGRESQL_USER -n quarkuscoffeeshop-demo
-            POSTGRESQL_PASSWORD=$(oc get secret coffeeshopdb-pguser-coffeeshopadmin -n quarkuscoffeeshop-demo -o=jsonpath='{.data.password}' | base64 --decode)
-            oc set env deployment/homeoffice-backend POSTGRESQL_PASSWORD=$POSTGRESQL_PASSWORD -n quarkuscoffeeshop-demo
+            POSTGRESQL_JDBC_URL=$(oc get configmap droneshop-config -n quarkusdroneshop-demo -o=jsonpath='{.data.PGSQL_URL}')
+            oc set env deployment/homeoffice-backend POSTGRESQL_JDBC_URL=$POSTGRESQL_JDBC_URL -n quarkusdroneshop-demo
+            POSTGRESQL_USER=$(oc get secret droneshopdb-pguser-droneshopadmin -n quarkusdroneshop-demo -o=jsonpath='{.data.user}' | base64 --decode)
+            oc set env deployment/homeoffice-backend POSTGRESQL_USER=$POSTGRESQL_USER -n quarkusdroneshop-demo
+            POSTGRESQL_PASSWORD=$(oc get secret droneshopdb-pguser-droneshopadmin -n quarkusdroneshop-demo -o=jsonpath='{.data.password}' | base64 --decode)
+            oc set env deployment/homeoffice-backend POSTGRESQL_PASSWORD=$POSTGRESQL_PASSWORD -n quarkusdroneshop-demo
 
-            CONFIG_CORS_ORIGINS=$(oc get route homeoffice-backend -o jsonpath='{.spec.host}' -n quarkuscoffeeshop-demo)
-            CONFIG_LOYALTY_STREAM_URL=$(oc get route homeoffice-backend -o jsonpath='{.spec.host}' -n quarkuscoffeeshop-demo)/dashboard/loyaltystream
-            CONFIG_STREAM_URL=$(oc get route homeoffice-backend -o jsonpath='{.spec.host}' -n quarkuscoffeeshop-demo)/dashboard/stream
-            CONFIG_GRAHQL_URL=$(oc get route homeoffice-backend -o jsonpath='{.spec.host}' -n quarkuscoffeeshop-demo)/graphql
-            oc patch configmap coffeeshop-config -n quarkuscoffeeshop-demo -p "{\"data\":{\"CORS_ORIGINS\":\"http://$CONFIG_CORS_ORIGINS\"}}"
-            oc patch configmap coffeeshop-config -n quarkuscoffeeshop-demo -p "{\"data\":{\"LOYALTY_STREAM_URL\":\"http://$CONFIG_LOYALTY_STREAM_URL\"}}"
-            oc patch configmap coffeeshop-config -n quarkuscoffeeshop-demo -p "{\"data\":{\"STREAM_URL\":\"http://$CONFIG_STREAM_URL\"}}"
-            oc patch configmap coffeeshop-config -n quarkuscoffeeshop-demo -p "{\"data\":{\"GRAHQL_URL\":\"http://$CONFIG_GRAHQL_URL\"}}"
+            CONFIG_CORS_ORIGINS=$(oc get route homeoffice-backend -o jsonpath='{.spec.host}' -n quarkusdroneshop-demo)
+            CONFIG_LOYALTY_STREAM_URL=$(oc get route homeoffice-backend -o jsonpath='{.spec.host}' -n quarkusdroneshop-demo)/dashboard/loyaltystream
+            CONFIG_STREAM_URL=$(oc get route homeoffice-backend -o jsonpath='{.spec.host}' -n quarkusdroneshop-demo)/dashboard/stream
+            CONFIG_GRAHQL_URL=$(oc get route homeoffice-backend -o jsonpath='{.spec.host}' -n quarkusdroneshop-demo)/graphql
+            oc patch configmap droneshop-config -n quarkusdroneshop-demo -p "{\"data\":{\"CORS_ORIGINS\":\"http://$CONFIG_CORS_ORIGINS\"}}"
+            oc patch configmap droneshop-config -n quarkusdroneshop-demo -p "{\"data\":{\"LOYALTY_STREAM_URL\":\"http://$CONFIG_LOYALTY_STREAM_URL\"}}"
+            oc patch configmap droneshop-config -n quarkusdroneshop-demo -p "{\"data\":{\"STREAM_URL\":\"http://$CONFIG_STREAM_URL\"}}"
+            oc patch configmap droneshop-config -n quarkusdroneshop-demo -p "{\"data\":{\"GRAHQL_URL\":\"http://$CONFIG_GRAHQL_URL\"}}"
 
-            KAFKA_URL=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.KAFKA_BOOTSTRAP_URLS}')
-            oc set env deployment/homeoffice-backend  KAFKA_BOOTSTRAP_URLS=$KAFKA_URL -n quarkuscoffeeshop-demo
-            QUARKUS_LOG_LEVEL=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.QUARKUS_LOG_LEVEL}')
-            oc set env deployment/homeoffice-backend  QUARKUS_LOG_LEVEL=$QUARKUS_LOG_LEVEL -n quarkuscoffeeshop-demo
-            QUARKUSCOFFEESHOP_LOG_LEVEL=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.QUARKUSCOFFEESHOP_LOG_LEVEL}')
-            oc set env deployment/homeoffice-backend  QUARKUSCOFFEESHOP_LOG_LEVEL=$QUARKUSCOFFEESHOP_LOG_LEVEL -n quarkuscoffeeshop-demo
-            STORE_LOCATIONS=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.STORE_ID}')
-            oc set env deployment/homeoffice-backend  STORE_LOCATIONS=$STORE_LOCATIONS -n quarkuscoffeeshop-demo
+            KAFKA_URL=$(oc get configmap droneshop-config -n quarkusdroneshop-demo -o=jsonpath='{.data.KAFKA_BOOTSTRAP_URLS}')
+            oc set env deployment/homeoffice-backend  KAFKA_BOOTSTRAP_URLS=$KAFKA_URL -n quarkusdroneshop-demo
+            QUARKUS_LOG_LEVEL=$(oc get configmap droneshop-config -n quarkusdroneshop-demo -o=jsonpath='{.data.QUARKUS_LOG_LEVEL}')
+            oc set env deployment/homeoffice-backend  QUARKUS_LOG_LEVEL=$QUARKUS_LOG_LEVEL -n quarkusdroneshop-demo
+            QUARKUSCOFFEESHOP_LOG_LEVEL=$(oc get configmap droneshop-config -n quarkusdroneshop-demo -o=jsonpath='{.data.QUARKUSCOFFEESHOP_LOG_LEVEL}')
+            oc set env deployment/homeoffice-backend  QUARKUSCOFFEESHOP_LOG_LEVEL=$QUARKUSCOFFEESHOP_LOG_LEVEL -n quarkusdroneshop-demo
+            STORE_LOCATIONS=$(oc get configmap droneshop-config -n quarkusdroneshop-demo -o=jsonpath='{.data.STORE_ID}')
+            oc set env deployment/homeoffice-backend  STORE_LOCATIONS=$STORE_LOCATIONS -n quarkusdroneshop-demo
 
       runAfter:
         - maven-run

@@ -1,10 +1,10 @@
 apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
-  name: build-and-push-quarkuscoffeeshop-customermocker
+  name: build-and-push-quarkusdroneshop-customermocker
   labels:
-    app: quarkuscoffeeshop-customermocker
-  namespace: quarkuscoffeeshop-cicd
+    app: quarkusdroneshop-customermocker
+  namespace: quarkusdroneshop-cicd
 spec:
   params:
     - default: latest
@@ -15,7 +15,7 @@ spec:
     - name: fetch-repository
       params:
         - name: url
-          value: 'https://github.com/nmushino/quarkuscoffeeshop-customermocker'
+          value: 'https://github.com/nmushino/quarkusdroneshop-customermocker'
         - name: subdirectory
           value: ''
         - name: deleteExisting
@@ -54,7 +54,7 @@ spec:
 #          value: /workspace/source/src/main/docker/Dockerfile.jvm
 #        - name: IMAGE
 #          value: >-
-#            image-registry.openshift-image-registry.svc:5000/quarkuscoffeeshop-demo/quarkuscoffeeshop-counter:$(params.IMAGE_TAG)
+#            image-registry.openshift-image-registry.svc:5000/quarkusdroneshop-demo/quarkusdroneshop-counter:$(params.IMAGE_TAG)
 #      runAfter:
 #        - maven-run
 #      taskRef:
@@ -70,30 +70,30 @@ spec:
             #!/bin/bash
             set -e
 
-            oc delete all -l app=customermocker -n quarkuscoffeeshop-demo || true
-            oc delete bc/customermocker -n quarkuscoffeeshop-demo || true
-            oc new-build --binary --name=customermocker --image-stream=java:openjdk-11-ubi8 -n quarkuscoffeeshop-demo
-            oc start-build customermocker --from-dir=target/quarkus-app/ --follow -n quarkuscoffeeshop-demo
-            oc new-app customermocker --name=customermocker --allow-missing-images -n quarkuscoffeeshop-demo
-            oc set env deployment/customermocker JAVA_OPTS_APPEND="-Dquarkus.profile=prod" -n quarkuscoffeeshop-demo
+            oc delete all -l app=customermocker -n quarkusdroneshop-demo || true
+            oc delete bc/customermocker -n quarkusdroneshop-demo || true
+            oc new-build --binary --name=customermocker --image-stream=java:openjdk-11-ubi8 -n quarkusdroneshop-demo
+            oc start-build customermocker --from-dir=target/quarkus-app/ --follow -n quarkusdroneshop-demo
+            oc new-app customermocker --name=customermocker --allow-missing-images -n quarkusdroneshop-demo
+            oc set env deployment/customermocker JAVA_OPTS_APPEND="-Dquarkus.profile=prod" -n quarkusdroneshop-demo
 
-            CONFIG_CORS_ORIGINS=$(oc get route homeoffice-ui -o jsonpath='{.spec.host}' -n quarkuscoffeeshop-demo)
-            CONFIG_LOYALTY_STREAM_URL=$(oc get route homeoffice-ui -o jsonpath='{.spec.host}' -n quarkuscoffeeshop-demo)/dashboard/loyaltystream
-            CONFIG_STREAM_URL=$(oc get route homeoffice-ui -o jsonpath='{.spec.host}' -n quarkuscoffeeshop-demo)/dashboard/stream
-            CONFIG_REST_URL=$(oc get route homeoffice-ui -o jsonpath='{.spec.host}' -n quarkuscoffeeshop-demo)/graphql
-            oc patch configmap coffeeshop-config -n quarkuscoffeeshop-demo -p "{\"data\":{\"CORS_ORIGINS\":\"http://$CONFIG_CORS_ORIGINS\"}}"
-            oc patch configmap coffeeshop-config -n quarkuscoffeeshop-demo -p "{\"data\":{\"LOYALTY_STREAM_URL\":\"http://$CONFIG_LOYALTY_STREAM_URL\"}}"
-            oc patch configmap coffeeshop-config -n quarkuscoffeeshop-demo -p "{\"data\":{\"STREAM_URL\":\"http://$CONFIG_STREAM_URL\"}}"
-            oc patch configmap coffeeshop-config -n quarkuscoffeeshop-demo -p "{\"data\":{\"REST_URL\":\"http://$CONFIG_REST_URL\"}}"
+            CONFIG_CORS_ORIGINS=$(oc get route homeoffice-ui -o jsonpath='{.spec.host}' -n quarkusdroneshop-demo)
+            CONFIG_LOYALTY_STREAM_URL=$(oc get route homeoffice-ui -o jsonpath='{.spec.host}' -n quarkusdroneshop-demo)/dashboard/loyaltystream
+            CONFIG_STREAM_URL=$(oc get route homeoffice-ui -o jsonpath='{.spec.host}' -n quarkusdroneshop-demo)/dashboard/stream
+            CONFIG_REST_URL=$(oc get route homeoffice-ui -o jsonpath='{.spec.host}' -n quarkusdroneshop-demo)/graphql
+            oc patch configmap droneshop-config -n quarkusdroneshop-demo -p "{\"data\":{\"CORS_ORIGINS\":\"http://$CONFIG_CORS_ORIGINS\"}}"
+            oc patch configmap droneshop-config -n quarkusdroneshop-demo -p "{\"data\":{\"LOYALTY_STREAM_URL\":\"http://$CONFIG_LOYALTY_STREAM_URL\"}}"
+            oc patch configmap droneshop-config -n quarkusdroneshop-demo -p "{\"data\":{\"STREAM_URL\":\"http://$CONFIG_STREAM_URL\"}}"
+            oc patch configmap droneshop-config -n quarkusdroneshop-demo -p "{\"data\":{\"REST_URL\":\"http://$CONFIG_REST_URL\"}}"
 
-            STREAM_URL=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.STREAM_URL}')
-            oc set env deployment/web STREAM_URL=$STREAM_URL -n quarkuscoffeeshop-demo
-            LOYALTY_STREAM_URL=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.LOYALTY_STREAM_URL}')
-            oc set env deployment/web LOYALTY_STREAM_URL=$LOYALTY_STREAM_URL -n quarkuscoffeeshop-demo
-            CORS_ORIGINS=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.CORS_ORIGINS}')
-            oc set env deployment/web CORS_ORIGINS=$CORS_ORIGINS -n quarkuscoffeeshop-demo
-            STORE_ID=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.STORE_ID}')
-            oc set env deployment/web STORE_ID=$STORE_ID -n quarkuscoffeeshop-demo
+            STREAM_URL=$(oc get configmap droneshop-config -n quarkusdroneshop-demo -o=jsonpath='{.data.STREAM_URL}')
+            oc set env deployment/web STREAM_URL=$STREAM_URL -n quarkusdroneshop-demo
+            LOYALTY_STREAM_URL=$(oc get configmap droneshop-config -n quarkusdroneshop-demo -o=jsonpath='{.data.LOYALTY_STREAM_URL}')
+            oc set env deployment/web LOYALTY_STREAM_URL=$LOYALTY_STREAM_URL -n quarkusdroneshop-demo
+            CORS_ORIGINS=$(oc get configmap droneshop-config -n quarkusdroneshop-demo -o=jsonpath='{.data.CORS_ORIGINS}')
+            oc set env deployment/web CORS_ORIGINS=$CORS_ORIGINS -n quarkusdroneshop-demo
+            STORE_ID=$(oc get configmap droneshop-config -n quarkusdroneshop-demo -o=jsonpath='{.data.STORE_ID}')
+            oc set env deployment/web STORE_ID=$STORE_ID -n quarkusdroneshop-demo
       runAfter:
         - maven-run
       taskRef:

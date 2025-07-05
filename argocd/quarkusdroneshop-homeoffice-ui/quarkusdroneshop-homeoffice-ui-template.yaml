@@ -1,14 +1,14 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: quarkuscoffeeshop-homeoffice-ui
+  name: quarkusdroneshop-homeoffice-ui
 spec:
   destination:
     name: ''
-    namespace: quarkuscoffeeshop-cicd
+    namespace: quarkusdroneshop-cicd
     server: 'https://kubernetes.default.svc'
   source:
-    path: quarkuscoffeeshop-homeoffice-ui
+    path: quarkusdroneshop-homeoffice-ui
     repoURL: %REPO_NAME%
     targetRevision: HEAD
   project: default

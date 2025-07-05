@@ -1,8 +1,8 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: quarkuscoffeeshop-maven-settings-pvc
-  namespace: quarkuscoffeeshop-cicd
+  name: quarkusdroneshop-maven-settings-pvc
+  namespace: quarkusdroneshop-cicd
 spec:
   accessModes:
     - ReadWriteOnce

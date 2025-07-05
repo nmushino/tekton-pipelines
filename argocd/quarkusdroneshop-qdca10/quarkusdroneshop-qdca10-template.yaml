@@ -1,14 +1,14 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: quarkuscoffeeshop-barista
+  name: quarkusdroneshop-qdca10
 spec:
   destination:
     name: ''
-    namespace: quarkuscoffeeshop-cicd
+    namespace: quarkusdroneshop-cicd
     server: 'https://kubernetes.default.svc'
   source:
-    path: quarkuscoffeeshop-barista
+    path: quarkusdroneshop-qdca10
     repoURL:  %REPO_NAME%
     targetRevision: HEAD
   project: default

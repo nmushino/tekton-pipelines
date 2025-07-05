@@ -3,7 +3,7 @@ kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: tt-createwebhook
-  namespace: quarkuscoffeeshop-cicd
+  namespace: quarkusdroneshop-cicd
 rules:
   - apiGroups:
       - ''

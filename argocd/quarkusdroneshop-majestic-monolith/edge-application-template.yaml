@@ -1,15 +1,15 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: quarkuscoffeeshop-edge-pipeline
-  namespace: quarkuscoffeeshop-cicd
+  name: quarkusdroneshop-edge-pipeline
+  namespace: quarkusdroneshop-cicd
 spec:
   destination:
-    namespace: quarkuscoffeeshop-cicd
+    namespace: quarkusdroneshop-cicd
     server: 'https://kubernetes.default.svc'
-  project: quarkuscoffeeshop-majestic-monolith-1
+  project: quarkusdroneshop-majestic-monolith-1
   source:
-    path: quarkuscoffeeshop-majestic-monolith
+    path: quarkusdroneshop-majestic-monolith
     repoURL: %REPO_NAME%
     targetRevision: HEAD
   syncPolicy:

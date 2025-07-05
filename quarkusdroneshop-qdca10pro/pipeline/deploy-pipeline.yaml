@@ -1,10 +1,10 @@
 apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
-  name: build-and-push-quarkuscoffeeshop-kitchen
-  namespace: quarkuscoffeeshop-cicd
+  name: build-and-push-quarkusdroneshop-qdca10pro
+  namespace: quarkusdroneshop-cicd
   labels:
-    app: quarkuscoffeeshop-kitchen
+    app: quarkusdroneshop-qdca10pro
 spec:
   params:
     - default: latest
@@ -15,7 +15,7 @@ spec:
     - name: fetch-repository
       params:
         - name: url
-          value: 'https://github.com/nmushino/quarkuscoffeeshop-kitchen'
+          value: 'https://github.com/nmushino/quarkusdroneshop-qdca10pro'
         - name: subdirectory
           value: ''
         - name: deleteExisting
@@ -52,7 +52,7 @@ spec:
 #          value: /workspace/source/src/main/docker/Dockerfile.jvm
 #        - name: IMAGE
 #          value: >-
-#            image-registry.openshift-image-registry.svc:5000/quarkuscoffeeshop-demo/quarkuscoffeeshop-kitchen:$(params.IMAGE_TAG)
+#            image-registry.openshift-image-registry.svc:5000/quarkusdroneshop-demo/quarkusdroneshop-qdca10pro:$(params.IMAGE_TAG)
 #      runAfter:
 #        - maven-run
 #      taskRef:
@@ -68,19 +68,19 @@ spec:
             #!/bin/bash
             set -e
 
-            oc delete all -l app=kitchen -n quarkuscoffeeshop-demo || true
-            oc delete bc/kitchen -n quarkuscoffeeshop-demo || true
-            oc new-build --binary --name=kitchen --image-stream=java:openjdk-11-ubi8 -n quarkuscoffeeshop-demo
-            oc start-build kitchen --from-dir=target/quarkus-app/ --follow -n quarkuscoffeeshop-demo
-            oc new-app kitchen --name=kitchen --allow-missing-images -n quarkuscoffeeshop-demo
-            oc set env deployment/kitchen JAVA_OPTS_APPEND="-Dquarkus.profile=prod" -n quarkuscoffeeshop-demo
+            oc delete all -l app=qdca10pro -n quarkusdroneshop-demo || true
+            oc delete bc/qdca10pro -n quarkusdroneshop-demo || true
+            oc new-build --binary --name=qdca10pro --image-stream=java:openjdk-11-ubi8 -n quarkusdroneshop-demo
+            oc start-build qdca10pro --from-dir=target/quarkus-app/ --follow -n quarkusdroneshop-demo
+            oc new-app qdca10pro --name=qdca10pro --allow-missing-images -n quarkusdroneshop-demo
+            oc set env deployment/qdca10pro JAVA_OPTS_APPEND="-Dquarkus.profile=prod" -n quarkusdroneshop-demo
             
-            KAFKA_URL=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.KAFKA_BOOTSTRAP_URLS}')
-            oc set env deployment/kitchen KAFKA_BOOTSTRAP_URLS=$KAFKA_URL -n quarkuscoffeeshop-demo
-            QUARKUS_LOG_LEVEL=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.QUARKUS_LOG_LEVEL}')
-            oc set env deployment/kitchen QUARKUS_LOG_LEVEL=$QUARKUS_LOG_LEVEL -n quarkuscoffeeshop-demo
-            QUARKUSCOFFEESHOP_LOG_LEVEL=$(oc get configmap coffeeshop-config -n quarkuscoffeeshop-demo -o=jsonpath='{.data.QUARKUSCOFFEESHOP_LOG_LEVEL}')
-            oc set env deployment/kitchen QUARKUSCOFFEESHOP_LOG_LEVEL=$QUARKUSCOFFEESHOP_LOG_LEVEL -n quarkuscoffeeshop-demo
+            KAFKA_URL=$(oc get configmap droneshop-config -n quarkusdroneshop-demo -o=jsonpath='{.data.KAFKA_BOOTSTRAP_URLS}')
+            oc set env deployment/qdca10pro KAFKA_BOOTSTRAP_URLS=$KAFKA_URL -n quarkusdroneshop-demo
+            QUARKUS_LOG_LEVEL=$(oc get configmap droneshop-config -n quarkusdroneshop-demo -o=jsonpath='{.data.QUARKUS_LOG_LEVEL}')
+            oc set env deployment/qdca10pro QUARKUS_LOG_LEVEL=$QUARKUS_LOG_LEVEL -n quarkusdroneshop-demo
+            QUARKUSCOFFEESHOP_LOG_LEVEL=$(oc get configmap droneshop-config -n quarkusdroneshop-demo -o=jsonpath='{.data.QUARKUSCOFFEESHOP_LOG_LEVEL}')
+            oc set env deployment/qdca10pro QUARKUSCOFFEESHOP_LOG_LEVEL=$QUARKUSCOFFEESHOP_LOG_LEVEL -n quarkusdroneshop-demo
       runAfter:
         - maven-run
       taskRef:

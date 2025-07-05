@@ -1,29 +1,29 @@
 # Docs
-Please see the Github Pages Site for complete documentation: [quarkuscoffeeshop.github.io](https://quarkuscoffeeshop.github.io)
+Please see the Github Pages Site for complete documentation: [quarkusdroneshop.github.io](https://quarkusdroneshop.github.io)
 
-# quarkuscoffeeshop Tekton pipelines Guide
+# quarkusdroneshop Tekton pipelines Guide
 
 ### Requirements 
-* [Postgres Operator](https://github.com/quarkuscoffeeshop/quarkuscoffeeshop-helm/wiki#install-postgres-operator)
+* [Postgres Operator](https://github.com/quarkusdroneshop/quarkusdroneshop-helm/wiki#install-postgres-operator)
 * AMQ Streams
 
 **Once Postgres Operator Database is installed run the following below**
 ```
-$ curl -OL https://raw.githubusercontent.com/quarkuscoffeeshop/quarkuscoffeeshop-ansible/master/files/deploy-quarkuscoffeeshop-ansible.sh
-$ chmod +x deploy-quarkuscoffeeshop-ansible.sh
-$ NAMESPACE=quarkuscoffeeshop-homeoffice
-$  sed -i "s/quarkuscoffeeshop-demo/${NAMESPACE}/g" deploy-quarkuscoffeeshop-ansible.sh
-$ ./deploy-quarkuscoffeeshop-ansible.sh 
+$ curl -OL https://raw.githubusercontent.com/quarkusdroneshop/quarkusdroneshop-ansible/master/files/deploy-quarkusdroneshop-ansible.sh
+$ chmod +x deploy-quarkusdroneshop-ansible.sh
+$ NAMESPACE=quarkusdroneshop-homeoffice
+$  sed -i "s/quarkusdroneshop-demo/${NAMESPACE}/g" deploy-quarkusdroneshop-ansible.sh
+$ ./deploy-quarkusdroneshop-ansible.sh 
  Options:
   -d      Add domain 
   -o      OpenShift Token
   -p      Postgres Password
   -s      Store ID
   -h      Display this help and exit
-  -r      Destroy coffeeshop 
-  To deploy qaurkuscoffeeshop-ansible playbooks
-  ./deploy-quarkuscoffeeshop-ansible.sh  -d ocp4.example.com -o sha-123456789 -p 123456789 -s ATLANTA
-$  ./deploy-quarkuscoffeeshop-ansible.sh  -d ocp4.example.com -o sha-123456789 -p 123456789 -s ATLANTA
+  -r      Destroy droneshop 
+  To deploy qaurkusdroneshop-ansible playbooks
+  ./deploy-quarkusdroneshop-ansible.sh  -d ocp4.example.com -o sha-123456789 -p 123456789 -s ATLANTA
+$  ./deploy-quarkusdroneshop-ansible.sh  -d ocp4.example.com -o sha-123456789 -p 123456789 -s ATLANTA
 ```
 
 **Install OpenShift Pipelines**
@@ -58,7 +58,7 @@ brew install tektoncd-cli
 
 **Create Quarkus Drone Shop project**
 ```
-oc new-project quarkuscoffeeshop-cicd
+oc new-project quarkusdroneshop-cicd
 ```
 
 **Set up quay permissions**
@@ -67,7 +67,7 @@ oc  create -f sa/pipeline-sa.yaml
 ```
 **Set privileged containers for the pushImageroQuay task OCP 4.7.x**
 ```
-oc adm policy add-scc-to-user privileged -z pipeline -n  quarkuscoffeeshop-cicd
+oc adm policy add-scc-to-user privileged -z pipeline -n  quarkusdroneshop-cicd
 ```
 
 **Set quay credentials**  
@@ -84,14 +84,14 @@ type: kubernetes.io/dockerconfigjson
 
 **Create secret**
 ```
-oc create -f quay-secret.yml --namespace=quarkuscoffeeshop-cicd
+oc create -f quay-secret.yml --namespace=quarkusdroneshop-cicd
 ```
 
 **configure slack webhook**  
 * [tekton hub](https://hub-preview.tekton.dev/) 
 * [Sending messages using Incoming Webhooks](https://api.slack.com/messaging/webhooks)
 ```
-# oc create -f event-notification/send-to-webhook-slack.yaml -n quarkuscoffeeshop-cicd
+# oc create -f event-notification/send-to-webhook-slack.yaml -n quarkusdroneshop-cicd
 # WEBHOOKURL=https://hooks.slack.com/services/xxxxx/Xxxxxx
 # cat >webhook-secret.yaml<<YAML
 kind: Secret
@@ -101,12 +101,12 @@ metadata:
 stringData:
   url: ${WEBHOOKURL}
 YAML
-# oc create -f webhook-secret.yaml -n quarkuscoffeeshop-cicd
+# oc create -f webhook-secret.yaml -n quarkusdroneshop-cicd
 ```
 
 ## HOME Office (Backoffice)
-**quarkuscoffeeshop-homeoffice-ui tekton pipeline**  
-[quarkuscoffeeshop-homeoffice-ui](quarkuscoffeeshop-homeoffice-ui/README.md)
+**quarkusdroneshop-homeoffice-ui tekton pipeline**  
+[quarkusdroneshop-homeoffice-ui](quarkusdroneshop-homeoffice-ui/README.md)
 
 **homeoffice-backend tekton pipeline**  
 [homeoffice-backend](homeoffice-backend/README.md)
@@ -117,18 +117,18 @@ YAML
 
 ## Store front microservices  
 
-**quarkuscoffeeshop-barista tekton pipeline**  
-[quarkuscoffeeshop-barista](quarkuscoffeeshop-barista/README.md)
+**quarkusdroneshop-qdca10 tekton pipeline**  
+[quarkusdroneshop-qdca10](quarkusdroneshop-qdca10/README.md)
 
-**quarkuscoffeeshop-counter tekton pipeline**  
-[quarkuscoffeeshop-counter](quarkuscoffeeshop-counter/README.md)
+**quarkusdroneshop-counter tekton pipeline**  
+[quarkusdroneshop-counter](quarkusdroneshop-counter/README.md)
 
-**quarkuscoffeeshop-kitchen tekton pipeline**  
-[quarkuscoffeeshop-kitchen](quarkuscoffeeshop-kitchen/README.md)
+**quarkusdroneshop-qdca10pro tekton pipeline**  
+[quarkusdroneshop-qdca10pro](quarkusdroneshop-qdca10pro/README.md)
 
-**quarkuscoffeeshop-web tekton pipeline**   
-[quarkuscoffeeshop-web](quarkuscoffeeshop-web/README.md)
+**quarkusdroneshop-web tekton pipeline**   
+[quarkusdroneshop-web](quarkusdroneshop-web/README.md)
 
 ## RHEL Edge Pipelines
-**quarkuscoffeeshop-majestic-monolith tekton pipeline**   
-[quarkuscoffeeshop-majestic-monolith](quarkuscoffeeshop-majestic-monolith/README.md)
+**quarkusdroneshop-majestic-monolith tekton pipeline**   
+[quarkusdroneshop-majestic-monolith](quarkusdroneshop-majestic-monolith/README.md)
