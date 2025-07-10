@@ -79,8 +79,8 @@ spec:
             oc set env deployment/qdca10pro KAFKA_BOOTSTRAP_URLS=$KAFKA_URL -n quarkusdroneshop-demo
             QUARKUS_LOG_LEVEL=$(oc get configmap droneshop-config -n quarkusdroneshop-demo -o=jsonpath='{.data.QUARKUS_LOG_LEVEL}')
             oc set env deployment/qdca10pro QUARKUS_LOG_LEVEL=$QUARKUS_LOG_LEVEL -n quarkusdroneshop-demo
-            QUARKUSCOFFEESHOP_LOG_LEVEL=$(oc get configmap droneshop-config -n quarkusdroneshop-demo -o=jsonpath='{.data.QUARKUSCOFFEESHOP_LOG_LEVEL}')
-            oc set env deployment/qdca10pro QUARKUSCOFFEESHOP_LOG_LEVEL=$QUARKUSCOFFEESHOP_LOG_LEVEL -n quarkusdroneshop-demo
+            QUARKUSDRONESHOP_LOG_LEVEL=$(oc get configmap droneshop-config -n quarkusdroneshop-demo -o=jsonpath='{.data.QUARKUSDRONESHOP_LOG_LEVEL}')
+            oc set env deployment/qdca10pro QUARKUSDRONESHOP_LOG_LEVEL=$QUARKUSDRONESHOP_LOG_LEVEL -n quarkusdroneshop-demo
       runAfter:
         - maven-run
       taskRef:

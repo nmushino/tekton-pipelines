@@ -105,10 +105,13 @@ spec:
             oc set env deployment/homeoffice-backend  KAFKA_BOOTSTRAP_URLS=$KAFKA_URL -n quarkusdroneshop-demo
             QUARKUS_LOG_LEVEL=$(oc get configmap droneshop-config -n quarkusdroneshop-demo -o=jsonpath='{.data.QUARKUS_LOG_LEVEL}')
             oc set env deployment/homeoffice-backend  QUARKUS_LOG_LEVEL=$QUARKUS_LOG_LEVEL -n quarkusdroneshop-demo
-            QUARKUSCOFFEESHOP_LOG_LEVEL=$(oc get configmap droneshop-config -n quarkusdroneshop-demo -o=jsonpath='{.data.QUARKUSCOFFEESHOP_LOG_LEVEL}')
-            oc set env deployment/homeoffice-backend  QUARKUSCOFFEESHOP_LOG_LEVEL=$QUARKUSCOFFEESHOP_LOG_LEVEL -n quarkusdroneshop-demo
+            QUARKUSDRONESHOP_LOG_LEVEL=$(oc get configmap droneshop-config -n quarkusdroneshop-demo -o=jsonpath='{.data.QUARKUSDRONESHOP_LOG_LEVEL}')
+            oc set env deployment/homeoffice-backend  QUARKUSDRONESHOP_LOG_LEVEL=$QUARKUSDRONESHOP_LOG_LEVEL -n quarkusdroneshop-demo
             STORE_LOCATIONS=$(oc get configmap droneshop-config -n quarkusdroneshop-demo -o=jsonpath='{.data.STORE_ID}')
             oc set env deployment/homeoffice-backend  STORE_LOCATIONS=$STORE_LOCATIONS -n quarkusdroneshop-demo
+
+            echo "REACT_APP_GRAPHQL_ENDPOINT=$CONFIG_GRAHQL_URL" > .env
+            echo "ALLOWED_ORIGINS=$CONFIG_CORS_ORIGINS" > .env
 
       runAfter:
         - maven-run
