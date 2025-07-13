@@ -80,9 +80,11 @@ spec:
             CONFIG_CORS_ORIGINS=$(oc get route quarkusdroneshop-web -o jsonpath='{.spec.host}' -n quarkusdroneshop-demo)
             CONFIG_LOYALTY_STREAM_URL=$(oc get route quarkusdroneshop-web -o jsonpath='{.spec.host}' -n quarkusdroneshop-demo)/dashboard/loyaltystream
             CONFIG_STREAM_URL=$(oc get route quarkusdroneshop-web -o jsonpath='{.spec.host}' -n quarkusdroneshop-demo)/dashboard/stream
+            CONFIG_REWARD_STREAM_URL=$(oc get route quarkusdroneshop-web -o jsonpath='{.spec.host}' -n quarkusdroneshop-demo)/dashboard/rewards/stream
             oc patch configmap droneshop-config -n quarkusdroneshop-demo -p "{\"data\":{\"CORS_ORIGINS\":\"http://$CONFIG_CORS_ORIGINS\"}}"
             oc patch configmap droneshop-config -n quarkusdroneshop-demo -p "{\"data\":{\"LOYALTY_STREAM_URL\":\"http://$CONFIG_LOYALTY_STREAM_URL\"}}"
             oc patch configmap droneshop-config -n quarkusdroneshop-demo -p "{\"data\":{\"STREAM_URL\":\"http://$CONFIG_STREAM_URL\"}}"
+            oc patch configmap droneshop-config -n quarkusdroneshop-demo -p "{\"data\":{\"REWARD_STREAM_URL\":\"http://$CONFIG_REWARD_STREAM_URL\"}}"
 
             KAFKA_URL=$(oc get configmap droneshop-config -n quarkusdroneshop-demo -o=jsonpath='{.data.KAFKA_BOOTSTRAP_URLS}')
             oc set env deployment/web KAFKA_BOOTSTRAP_URLS=$KAFKA_URL -n quarkusdroneshop-demo
@@ -95,6 +97,8 @@ spec:
             oc set env deployment/web CORS_ORIGINS=$CORS_ORIGINS -n quarkusdroneshop-demo
             STORE_ID=$(oc get configmap droneshop-config -n quarkusdroneshop-demo -o=jsonpath='{.data.STORE_ID}')
             oc set env deployment/web STORE_ID=$STORE_ID -n quarkusdroneshop-demo
+            REWARD_STREAM_URL=$(oc get configmap droneshop-config -n quarkusdroneshop-demo -o=jsonpath='{.data.REWARD_STREAM_URL}')
+            oc set env deployment/web REWARD_STREAM_URL=$REWARD_STREAM_URL -n quarkusdroneshop-demo
       runAfter:
         - maven-run
       taskRef:
