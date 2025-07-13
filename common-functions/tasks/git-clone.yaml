@@ -72,7 +72,7 @@ spec:
     - name: gitInitImage
       description: the image used where the git-init binary is
       type: string
-      default: "gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.18.1"
+      default: "docker.io/alpine/git:latest"
   results:
     - name: commit
       description: The precise commit SHA that was fetched by this Task
@@ -85,28 +85,21 @@ spec:
         #!/bin/sh
         set -eu -o pipefail
 
-        if [[ "$(params.verbose)" == "true" ]] ; then
+        if [ "$(params.verbose)" = "true" ] ; then
           set -x
         fi
 
         CHECKOUT_DIR="$(workspaces.output.path)/$(params.subdirectory)"
 
         cleandir() {
-          # Delete any existing contents of the repo directory if it exists.
-          #
-          # We don't just "rm -rf $CHECKOUT_DIR" because $CHECKOUT_DIR might be "/"
-          # or the root of a mounted volume.
-          if [[ -d "$CHECKOUT_DIR" ]] ; then
-            # Delete non-hidden files and directories
+          if [ -d "$CHECKOUT_DIR" ] ; then
             rm -rf "$CHECKOUT_DIR"/*
-            # Delete files and directories starting with . but excluding ..
             rm -rf "$CHECKOUT_DIR"/.[!.]*
-            # Delete files and directories starting with .. plus any other character
             rm -rf "$CHECKOUT_DIR"/..?*
           fi
         }
 
-        if [[ "$(params.deleteExisting)" == "true" ]] ; then
+        if [ "$(params.deleteExisting)" = "true" ] ; then
           cleandir
         fi
 
@@ -114,20 +107,15 @@ spec:
         test -z "$(params.httpsProxy)" || export HTTPS_PROXY=$(params.httpsProxy)
         test -z "$(params.noProxy)" || export NO_PROXY=$(params.noProxy)
 
-        /ko-app/git-init \
-          -url "$(params.url)" \
-          -revision "$(params.revision)" \
-          -refspec "$(params.refspec)" \
-          -path "$CHECKOUT_DIR" \
-          -sslVerify="$(params.sslVerify)" \
-          -submodules="$(params.submodules)" \
-          -depth "$(params.depth)"
+        git clone --depth=$(params.depth) --recurse-submodules=$(params.submodules) "$(params.url)" "$CHECKOUT_DIR"
+
+        if [ -n "$(params.revision)" ]; then
+          cd "$CHECKOUT_DIR"
+          git checkout "$(params.revision)"
+        fi
+
         cd "$CHECKOUT_DIR"
         RESULT_SHA="$(git rev-parse HEAD)"
-        EXIT_CODE="$?"
-        if [ "$EXIT_CODE" != 0 ] ; then
-          exit $EXIT_CODE
-        fi
-        # ensure we don't add a trailing newline to the result
+
         echo -n "$RESULT_SHA" > $(results.commit.path)
         echo -n "$(params.url)" > $(results.url.path)
