@@ -26,41 +26,7 @@ spec:
       workspaces:
         - name: output
           workspace: shared-workspace
-#    - name: maven-run
-#      params:
-#        - name: CONTEXT_DIR
-#          value: .
-#        - name: GOALS
-#          value:
-#            - clean
-#            - package
-#      runAfter:
-#        - fetch-repository
-#      taskRef:
-#        kind: Task
-#        name: maven
-#      workspaces:
-#        - name: maven-settings
-#          workspace: maven-settings
-#        - name: source
-#          workspace: shared-workspace
-#    - name: build-java-app-image
-#      params:
-#        - name: CONTEXT
-#          value: /workspace/source
-#        - name: DOCKERFILE
-#          value: /workspace/source/src/main/docker/Dockerfile.jvm
-#        - name: IMAGE
-#          value: >-
-#            image-registry.openshift-image-registry.svc:5000/quarkusdroneshop-demo/quarkusdroneshop-homeoffice-backend:$(params.IMAGE_TAG)
-#      runAfter:
-#        - maven-run
-#      taskRef:
-#        kind: ClusterTask
-#        name: buildah
-#      workspaces:
-#        - name: source
-#          workspace: shared-workspace
+
     - name: push-oc-apps
       params:
         - name: SCRIPT
@@ -87,6 +53,15 @@ spec:
             oc label dc -l app=postgres app.kubernetes.io/name=postgresql -n quarkusdroneshop-demo
             oc label deployment -l app=homeoffice-backend app.kubernetes.io/name=quarkus -n quarkusdroneshop-demo
             oc label deployment -l app=homeoffice-ui app.kubernetes.io/name=nodejs -n quarkusdroneshop-demo
+
+
+            CONFIG_CORS_ORIGINS=$(oc get route homeoffice-backend -o jsonpath='{.spec.host}' -n quarkusdroneshop-demo)
+            CONFIG_GRAHQL_URL=$(oc get route homeoffice-backend -o jsonpath='{.spec.host}' -n quarkusdroneshop-demo)/graphql
+            oc patch configmap droneshop-config -n quarkusdroneshop-demo -p "{\"data\":{\"CORS_ORIGINS\":\"http://$CONFIG_CORS_ORIGINS\"}}"
+            oc patch configmap droneshop-config -n quarkusdroneshop-demo -p "{\"data\":{\"GRAHQL_URL\":\"http://$CONFIG_GRAHQL_URL\"}}"
+
+            echo "REACT_APP_GRAPHQL_ENDPOINT=$CONFIG_GRAHQL_URL" > .env
+            echo "ALLOWED_ORIGINS=$CONFIG_CORS_ORIGINS" > .env
 
             oc patch deployment homeoffice-ui -n quarkusdroneshop-demo --type=json -p='[
               {
@@ -120,7 +95,6 @@ spec:
           workspace: shared-workspace
   workspaces:
   - name: shared-workspace
-  - name: maven-settings
 ---
 apiVersion: v1
 kind: Service

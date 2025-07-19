@@ -1,16 +1,18 @@
 apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
-  name: build-and-push-quarkusdroneshop-customermocker
-  labels:
-    app: quarkusdroneshop-customermocker
+  name: build-and-push-quarkusdroneshop-web
   namespace: quarkusdroneshop-cicd
+  labels:
+    app: quarkusdroneshop-web
 spec:
   params:
     - default: latest
       description: Image Tag Value
       name: IMAGE_TAG
       type: string
+  workspaces:
+    - name: shared-workspace
   tasks:
     - name: fetch-repository
       params:
@@ -26,44 +28,27 @@ spec:
       workspaces:
         - name: output
           workspace: shared-workspace
+
     - name: maven-run
-      params:
-        - name: CONTEXT_DIR
-          value: .
-        - name: GOALS
-          value:
-            - clean
-            - package
-        - name: MAVEN_IMAGE
-          value: maven:3.8.5-openjdk-11
       runAfter:
         - fetch-repository
       taskRef:
         kind: Task
-        name: maven
+        name: maven-no-settings17
+      params:
+        - name: CONTEXT_DIR
+          value: .
+        - name: GOALS
+          value: "clean package"
       workspaces:
-        - name: maven-settings
-          workspace: maven-settings
         - name: source
           workspace: shared-workspace
-#    - name: build-java-app-image
-#      params:
-#        - name: CONTEXT
-#          value: /workspace/source
-#        - name: DOCKERFILE
-#          value: /workspace/source/src/main/docker/Dockerfile.jvm
-#        - name: IMAGE
-#          value: >-
-#            image-registry.openshift-image-registry.svc:5000/quarkusdroneshop-demo/quarkusdroneshop-counter:$(params.IMAGE_TAG)
-#      runAfter:
-#        - maven-run
-#      taskRef:
-#        kind: ClusterTask
-#        name: buildah
-#      workspaces:
-#        - name: source
-#          workspace: shared-workspace
+
     - name: push-oc-apps
+      runAfter:
+        - maven-run
+      taskRef:
+        name: push-app-task
       params:
         - name: SCRIPT
           value: |
@@ -94,13 +79,6 @@ spec:
             oc set env deployment/web CORS_ORIGINS=$CORS_ORIGINS -n quarkusdroneshop-demo
             STORE_ID=$(oc get configmap droneshop-config -n quarkusdroneshop-demo -o=jsonpath='{.data.STORE_ID}')
             oc set env deployment/web STORE_ID=$STORE_ID -n quarkusdroneshop-demo
-      runAfter:
-        - maven-run
-      taskRef:
-        name: push-app-task
       workspaces:
         - name: source
           workspace: shared-workspace
-  workspaces:
-  - name: shared-workspace
-  - name: maven-settings
