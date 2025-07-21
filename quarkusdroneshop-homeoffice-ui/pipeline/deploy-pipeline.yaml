@@ -15,7 +15,7 @@ spec:
     - name: fetch-repository
       params:
         - name: url
-          value: 'https://github.com/nmushino/quarkusdroneshop-homeoffice-ui'
+          value: 'https://github.com/quarkusdroneshop/quarkusdroneshop-homeoffice-ui'
         - name: subdirectory
           value: ''
         - name: deleteExisting
