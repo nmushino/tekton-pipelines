@@ -43,7 +43,7 @@ spec:
 
             echo "legacy-peer-deps=true" > .npmrc
             ./set-endpoint.sh
-            oc new-build --binary --name=homeoffice-ui --image-stream=openshift/nodejs:18-ubi8 -n quarkusdroneshop-demo
+            oc new-build --binary --name=homeoffice-ui --image-stream=openshift/nodejs:20-ubi8 -n quarkusdroneshop-demo
             oc start-build homeoffice-ui --from-dir=. --follow -n quarkusdroneshop-demo
             oc new-app homeoffice-ui --name=homeoffice-ui --allow-missing-images -n quarkusdroneshop-demo
             oc expose svc homeoffice-ui --name=homeoffice-ui -n quarkusdroneshop-demo || true
