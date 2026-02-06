@@ -62,7 +62,7 @@ spec:
             oc new-app inventory --name=inventory --allow-missing-images -n quarkusdroneshop-demo
             oc set env deployment/inventory JAVA_OPTS_APPEND="-Dquarkus.profile=prod" -n quarkusdroneshop-demo
 
-            PGSQL_URL=$(oc get configmap droneshop-config -n quarkusdroneshop-demo -o=jsonpath='{.data.PGSQL_URL}?currentSchema=droneshop')
+            PGSQL_URL=$(oc get configmap droneshop-config -n quarkusdroneshop-demo -o=jsonpath='{.data.PGSQL_URL}')
             oc set env deployment/inventory PGSQL_URL=$PGSQL_URL -n quarkusdroneshop-demo
             PGSQL_USER=$(oc get secret droneshopdb-pguser-droneshopadmin -n quarkusdroneshop-demo -o=jsonpath='{.data.user}' | base64 --decode)
             oc set env deployment/inventory PGSQL_USER=$PGSQL_USER -n quarkusdroneshop-demo
