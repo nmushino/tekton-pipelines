@@ -80,11 +80,11 @@ spec:
             CONFIG_CORS_ORIGINS=$(oc get route homeoffice-backend -o jsonpath='{.spec.host}' -n quarkusdroneshop-demo)
             CONFIG_LOYALTY_STREAM_URL=$(oc get route homeoffice-backend -o jsonpath='{.spec.host}' -n quarkusdroneshop-demo)/dashboard/loyaltystream
             CONFIG_STREAM_URL=$(oc get route homeoffice-backend -o jsonpath='{.spec.host}' -n quarkusdroneshop-demo)/dashboard/stream
-            CONFIG_GRAHQL_URL=$(oc get route homeoffice-backend -o jsonpath='{.spec.host}' -n quarkusdroneshop-demo)/graphql
+            CONFIG_GRAPHQL_URL=$(oc get route homeoffice-backend -o jsonpath='{.spec.host}' -n quarkusdroneshop-demo)/graphql
             oc patch configmap droneshop-config -n quarkusdroneshop-demo -p "{\"data\":{\"CORS_ORIGINS\":\"http://$CONFIG_CORS_ORIGINS\"}}"
             oc patch configmap droneshop-config -n quarkusdroneshop-demo -p "{\"data\":{\"LOYALTY_STREAM_URL\":\"http://$CONFIG_LOYALTY_STREAM_URL\"}}"
             oc patch configmap droneshop-config -n quarkusdroneshop-demo -p "{\"data\":{\"STREAM_URL\":\"http://$CONFIG_STREAM_URL\"}}"
-            oc patch configmap droneshop-config -n quarkusdroneshop-demo -p "{\"data\":{\"GRAHQL_URL\":\"http://$CONFIG_GRAHQL_URL\"}}"
+            oc patch configmap droneshop-config -n quarkusdroneshop-demo -p "{\"data\":{\"GRAPHQL_URL\":\"http://$CONFIG_GRAPHQL_URL\"}}"
 
             KAFKA_URL=$(oc get configmap droneshop-config -n quarkusdroneshop-demo -o=jsonpath='{.data.KAFKA_BOOTSTRAP_URLS}')
             oc set env deployment/homeoffice-backend  KAFKA_BOOTSTRAP_URLS=$KAFKA_URL -n quarkusdroneshop-demo

@@ -56,11 +56,11 @@ spec:
 
 
             CONFIG_CORS_ORIGINS=$(oc get route homeoffice-backend -o jsonpath='{.spec.host}' -n quarkusdroneshop-demo)
-            CONFIG_GRAHQL_URL=$(oc get route homeoffice-backend -o jsonpath='{.spec.host}' -n quarkusdroneshop-demo)/graphql
+            CONFIG_GRAPHQL_URL=$(oc get route homeoffice-backend -o jsonpath='{.spec.host}' -n quarkusdroneshop-demo)/graphql
             oc patch configmap droneshop-config -n quarkusdroneshop-demo -p "{\"data\":{\"CORS_ORIGINS\":\"http://$CONFIG_CORS_ORIGINS\"}}"
-            oc patch configmap droneshop-config -n quarkusdroneshop-demo -p "{\"data\":{\"GRAHQL_URL\":\"http://$CONFIG_GRAHQL_URL\"}}"
+            oc patch configmap droneshop-config -n quarkusdroneshop-demo -p "{\"data\":{\"GRAPHQL_URL\":\"http://$CONFIG_GRAPHQL_URL\"}}"
 
-            echo "REACT_APP_GRAPHQL_ENDPOINT=$CONFIG_GRAHQL_URL" > .env
+            echo "REACT_APP_GRAPHQL_ENDPOINT=$CONFIG_GRAPHQL_URL" > .env
             echo "ALLOWED_ORIGINS=$CONFIG_CORS_ORIGINS" > .env
 
             oc patch deployment homeoffice-ui -n quarkusdroneshop-demo --type=json -p='[
